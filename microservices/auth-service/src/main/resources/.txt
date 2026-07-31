@@ -1,0 +1,9 @@
+Refresh Token
+Forgot Password
+Email Verification (OTP)
+Resend OTP
+Account Lock
+Login Attempts
+Token Blacklist/Redis Logout
+
+these are still pending

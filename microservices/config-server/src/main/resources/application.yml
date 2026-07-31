@@ -1,0 +1,28 @@
+server:
+  port: 9091
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/ashvani8077/returnx-config-repo.git
+          default-label: main
+          clone-on-start: true
+          timeout: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.config: INFO

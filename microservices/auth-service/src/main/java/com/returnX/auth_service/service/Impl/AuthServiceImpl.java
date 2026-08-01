@@ -61,13 +61,11 @@ public class AuthServiceImpl implements AuthService {
 
             userClient.createUser(profileRequest);
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
-            throw new RuntimeException(
-                    "User service unavailable"
-            );
+            e.printStackTrace();
 
+            throw e;
         }
     }
 

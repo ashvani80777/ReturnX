@@ -39,7 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
-                                "/actuator/**"
+                                "/actuator/**",
+                                "/users"
                         ).permitAll()
 
                         .anyRequest()

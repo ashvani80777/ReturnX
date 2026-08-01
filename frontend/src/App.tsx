@@ -1,13 +1,12 @@
-import { Button } from "@/components/ui/button";
+import React from 'react'
+import AppRouter from './routes/AppRouter'
 
 function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Button>
-        ReturnX
-      </Button>
+    <div>
+      <AppRouter/>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -1,4 +1,9 @@
 package com.returnX.auth_service.exception;
 
-public class UserServiceUnavailableException {
+
+public class UserServiceUnavailableException extends RuntimeException {
+
+    public UserServiceUnavailableException(String message) {
+        super(message);
+    }
 }

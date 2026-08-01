@@ -4,9 +4,12 @@ import com.returnX.auth_service.dto.*;
 import com.returnX.auth_service.entity.User;
 import com.returnX.auth_service.enums.Role;
 import com.returnX.auth_service.exception.EmailAlreadyExistsException;
+import com.returnX.auth_service.exception.InvalidPasswordException;
 import com.returnX.auth_service.jwt.JwtService;
 import com.returnX.auth_service.repository.UserRepository;
 import com.returnX.auth_service.service.AuthService;
+import com.returnX.auth_service.service.client.UserClient;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,15 +26,18 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserClient userClient;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager, JwtService jwtService){
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager, JwtService jwtService, UserClient userClient){
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
         this.authenticationManager=authenticationManager;
         this.jwtService=jwtService;
+        this.userClient=userClient;
     }
 
     @Override
+    @Transactional
     public void register(RegisterRequest request) {
 
         if(userRepository.existsByEmail(request.getEmail())){
@@ -43,7 +49,26 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
 
-        userRepository.save(user);
+        User savedUser=userRepository.save(user);
+
+        CreateUserRequest profileRequest=new CreateUserRequest();
+        profileRequest.setAuthUserId(savedUser.getId());
+        profileRequest.setFirstName(request.getFirstName());
+        profileRequest.setLastName(request.getLastName());
+        profileRequest.setPhoneNumber(request.getPhoneNumber());
+        profileRequest.setAddress(request.getAddress());
+        try {
+
+            userClient.createUser(profileRequest);
+
+        }
+        catch (Exception e) {
+
+            throw new RuntimeException(
+                    "User service unavailable"
+            );
+
+        }
     }
 
     @Override
@@ -57,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         User user=userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()->new UsernameNotFoundException("User not found"));
 
-        String token= jwtService.generateToken(user.getEmail());
+        String token= jwtService.generateToken(user.getEmail(),user.getId());
 
         return new AuthResponse(
                 token,
@@ -90,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(()->new UsernameNotFoundException("User ot found"));
 
         if(!passwordEncoder.matches(request.getOldPassword(),user.getPassword())){
-            throw new RuntimeException("Old password is incorrect");
+            throw new InvalidPasswordException("Old password is incorrect");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);

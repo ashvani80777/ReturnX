@@ -25,3 +25,5 @@ Thumbs.db
 
 # Environment Files
 .env
+*.env
+application-secret.yml

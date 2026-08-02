@@ -12,8 +12,12 @@ spring:
           default-label: main
           clone-on-start: true
           timeout: 10
-          username: ${GIT_USERNAME}
-          password: ${GIT_TOKEN}
+          username: ashvani80777
+          password: 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
+
+          #removing later
+
+
 
 management:
   endpoints:
@@ -26,5 +30,7 @@ management:
 
 logging:
   level:
-    root: INFO
-    org.springframework.cloud.config: INFO
+    org.springframework.core.env: DEBUG
+
+test:
+  username: ${GITHUB_USERNAME:NOT_FOUND}

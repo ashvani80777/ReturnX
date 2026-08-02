@@ -1,0 +1,101 @@
+package com.returnX.claim_service.service.impl;
+
+import com.returnX.claim_service.dto.ClaimResponse;
+import com.returnX.claim_service.dto.CreateClaimResponse;
+import com.returnX.claim_service.dto.ItemResponse;
+import com.returnX.claim_service.entity.Claim;
+import com.returnX.claim_service.exception.ClaimAlreadyExistsException;
+import com.returnX.claim_service.exception.ClaimNotFoundException;
+import com.returnX.claim_service.exception.ItemServiceException;
+import com.returnX.claim_service.exception.UnauthorizedException;
+import com.returnX.claim_service.repository.ClaimRepository;
+import com.returnX.claim_service.service.ClaimService;
+import com.returnX.claim_service.service.client.ItemClient;
+import feign.FeignException;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class ClaimServiceImpl implements ClaimService {
+
+    private final ClaimRepository claimRepository;
+    private final ItemClient itemClient;
+
+    public ClaimServiceImpl(ClaimRepository claimRepository,
+                            ItemClient itemClient) {
+        this.claimRepository = claimRepository;
+        this.itemClient = itemClient;
+    }
+
+    @Override
+    public CreateClaimResponse createClaim(Long itemId, String email) {
+
+        ItemResponse item;
+
+        try {
+            item = itemClient.getItemById(itemId);
+        } catch (FeignException.NotFound e) {
+            throw new ItemServiceException("Item not found");
+        } catch (FeignException e) {
+            throw new ItemServiceException("Unable to communicate with Item Service");
+        }
+
+        if (item.getOwnerEmail().equalsIgnoreCase(email)) {
+            throw new UnauthorizedException("You cannot claim your own item");
+        }
+
+        String claimerEmail = email.toLowerCase();
+
+        if (claimRepository.existsByItemIdAndClaimerEmail(itemId, claimerEmail)) {
+            throw new ClaimAlreadyExistsException("You have already claimed this item");
+        }
+
+        Claim claim = new Claim();
+        claim.setItemId(itemId);
+        claim.setOwnerEmail(item.getOwnerEmail());
+        claim.setClaimerEmail(claimerEmail);
+        claim.setChatRoomId(UUID.randomUUID().toString());
+
+        claim = claimRepository.save(claim);
+
+        return new CreateClaimResponse(
+                claim.getId(),
+                claim.getChatRoomId(),
+                "Claim created successfully"
+        );
+    }
+
+    @Override
+    public List<ClaimResponse> getMyClaims(String email) {
+
+        return claimRepository
+                .findByClaimerEmailOrderByClaimedAtDesc(email.toLowerCase())
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    public ClaimResponse getClaimById(Long claimId) {
+
+        Claim claim = claimRepository.findById(claimId)
+                .orElseThrow(() ->
+                        new ClaimNotFoundException("Claim not found"));
+
+        return mapToResponse(claim);
+    }
+
+    private ClaimResponse mapToResponse(Claim claim) {
+
+        return new ClaimResponse(
+                claim.getId(),
+                claim.getItemId(),
+                claim.getOwnerEmail(),
+                claim.getClaimerEmail(),
+                claim.getChatRoomId(),
+                claim.getClaimedAt()
+        );
+    }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Client } from "@stomp/stompjs";
+import { Send, MessageCircle } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,11 +13,14 @@ import {
   type ChatMessage,
 } from "@/services/chatService";
 
+
 const ChatPage = () => {
+
   const { chatRoomId = "" } = useParams();
 
   const email = localStorage.getItem("email") || "";
   const token = localStorage.getItem("token") || "";
+
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
@@ -24,77 +28,155 @@ const ChatPage = () => {
   const stomp = useRef<Client | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+
+
   useEffect(() => {
+
     loadHistory();
     connectSocket();
+
 
     return () => {
       stomp.current?.deactivate();
     };
+
   }, [chatRoomId]);
 
+
+
+
   useEffect(() => {
+
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
     });
+
   }, [messages]);
 
+
+
+
+
   const loadHistory = async () => {
+
     try {
+
       const data = await getChatHistory(chatRoomId);
+
       setMessages(data);
-    } catch (e) {
-      console.error(e);
+
+    } catch (error) {
+
+      console.error(error);
+
     }
+
   };
 
+
+
+
+
   const connectSocket = () => {
+
     const client = new Client({
+
       brokerURL: "ws://localhost:8080/ws-chat",
 
       reconnectDelay: 5000,
+
 
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
 
-      onConnect: () => {
-        client.subscribe(`/topic/chat/${chatRoomId}`, (frame) => {
-          const msg: ChatMessage = JSON.parse(frame.body);
 
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === msg.id)) return prev;
-            return [...prev, msg];
-          });
-        });
+      onConnect: () => {
+
+        client.subscribe(
+          `/topic/chat/${chatRoomId}`,
+          (frame) => {
+
+            const msg: ChatMessage =
+              JSON.parse(frame.body);
+
+
+            setMessages((prev) => {
+
+              if (
+                prev.some(
+                  (m) => m.id === msg.id
+                )
+              ) {
+                return prev;
+              }
+
+
+              return [
+                ...prev,
+                msg,
+              ];
+
+            });
+
+          }
+        );
+
       },
+
+
 
       onStompError: (frame) => {
-        console.error("STOMP Error:", frame);
+
+        console.error(
+          "STOMP Error:",
+          frame
+        );
+
       },
 
-      onWebSocketError: (event) => {
-        console.error("WebSocket Error:", event);
+
+
+      onWebSocketError: (error) => {
+
+        console.error(
+          "WebSocket Error:",
+          error
+        );
+
       },
+
+
     });
+
+
 
     client.activate();
+
     stomp.current = client;
+
   };
 
+
+
+
+
+
   const handleSend = async () => {
+
     if (!text.trim()) return;
 
+
     if (!stomp.current?.connected) {
-      console.log("Socket not connected");
+
+      console.log(
+        "Socket not connected"
+      );
+
       return;
+
     }
 
-    console.log("Sending", {
-      chatRoomId,
-      senderEmail: email,
-      message: text,
-    });
 
     await sendMessage(
       stomp.current,
@@ -103,69 +185,318 @@ const ChatPage = () => {
       text
     );
 
+
     setText("");
+
   };
 
+
+
+
+
+
   return (
-    <div className="mx-auto max-w-5xl p-6">
-      <Card>
-        <CardContent className="space-y-4 p-6">
-          <h2 className="text-2xl font-bold">Chat</h2>
 
-          <div className="h-[500px] overflow-y-auto rounded-lg border p-4 space-y-3">
-            {messages.length === 0 && (
-              <p className="text-center text-slate-500">
-                No messages yet.
+    <div className="
+      h-[calc(100vh-64px)]
+      overflow-hidden
+      px-6
+      py-6
+    ">
+
+
+      <Card className="
+        mx-auto
+        flex
+        h-full
+        max-w-5xl
+        flex-col
+        overflow-hidden
+        border-none
+        shadow-xl
+      ">
+
+
+
+        {/* Header */}
+
+        <div className="
+          shrink-0
+          bg-gradient-to-r
+          from-orange-500
+          to-orange-600
+          p-6
+          text-white
+        ">
+
+
+          <div className="
+            flex
+            items-center
+            gap-3
+          ">
+
+
+            <div className="
+              flex
+              h-12
+              w-12
+              items-center
+              justify-center
+              rounded-full
+              bg-white/20
+            ">
+
+              <MessageCircle />
+
+            </div>
+
+
+
+            <div>
+
+              <h1 className="text-2xl font-bold">
+                ReturnX Chat
+              </h1>
+
+
+              <p className="text-sm text-orange-100">
+                Coordinate item handover safely
               </p>
-            )}
 
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`flex ${
-                  m.senderEmail === email
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-sm rounded-xl px-4 py-2 ${
-                    m.senderEmail === email
-                      ? "bg-orange-500 text-white"
-                      : "bg-slate-200"
-                  }`}
-                >
-                  {m.message}
-                </div>
-              </div>
-            ))}
+            </div>
 
-            <div ref={bottomRef} />
+
           </div>
 
-          <div className="flex gap-3">
+
+        </div>
+
+
+
+
+
+
+        <CardContent className="
+          flex
+          min-h-0
+          flex-1
+          flex-col
+          p-0
+        ">
+
+
+
+
+          {/* Messages Area */}
+
+          <div className="
+            flex-1
+            overflow-y-auto
+            bg-slate-50
+            p-6
+            space-y-4
+          ">
+
+
+
+            {
+              messages.length === 0 && (
+
+                <div className="
+                  flex
+                  h-full
+                  items-center
+                  justify-center
+                  text-slate-400
+                ">
+
+                  No messages yet
+
+                </div>
+
+              )
+            }
+
+
+
+
+
+
+            {
+              messages.map((m) => (
+
+                <div
+
+                  key={m.id}
+
+                  className={`
+                    flex
+                    ${
+                      m.senderEmail === email
+                      ? "justify-end"
+                      : "justify-start"
+                    }
+                  `}
+
+                >
+
+
+
+                  <div
+
+                    className={`
+                      max-w-[75%]
+                      rounded-2xl
+                      px-5
+                      py-3
+                      shadow-sm
+
+                      ${
+                        m.senderEmail === email
+
+                        ?
+
+                        "bg-orange-500 text-white rounded-br-none"
+
+                        :
+
+                        "bg-white border text-slate-700 rounded-bl-none"
+
+                      }
+                    `}
+
+                  >
+
+
+
+                    <p className="
+                      mb-1
+                      text-xs
+                      opacity-70
+                    ">
+
+                      {
+                        m.senderEmail === email
+                        ? "You"
+                        : "User"
+                      }
+
+                    </p>
+
+
+
+                    <p className="text-sm">
+                      {m.message}
+                    </p>
+
+
+
+                  </div>
+
+
+
+                </div>
+
+
+              ))
+            }
+
+
+
+
+            <div ref={bottomRef}/>
+
+
+          </div>
+
+
+
+
+
+
+
+          {/* Message Input */}
+
+          <div className="
+            flex
+            shrink-0
+            gap-3
+            border-t
+            bg-white
+            p-4
+          ">
+
+
+
             <Input
+
               value={text}
-              placeholder="Type message..."
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
+
+              placeholder="Write a message..."
+
+              onChange={(e)=>
+                setText(e.target.value)
+              }
+
+
+              onKeyDown={(e)=>{
+
+                if(e.key==="Enter")
                   handleSend();
-                }
+
               }}
+
+
+              className="
+                h-12
+                rounded-xl
+              "
+
             />
 
+
+
+
+
             <Button
+
               onClick={handleSend}
-              className="bg-orange-500 hover:bg-orange-600"
+
+              className="
+                h-12
+                w-12
+                rounded-xl
+                bg-orange-500
+                hover:bg-orange-600
+              "
+
             >
-              Send
+
+              <Send size={18}/>
+
             </Button>
+
+
+
           </div>
+
+
+
+
+
         </CardContent>
+
+
+
       </Card>
+
+
     </div>
+
   );
+
 };
+
 
 export default ChatPage;

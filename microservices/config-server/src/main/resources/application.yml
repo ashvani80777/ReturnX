@@ -13,7 +13,7 @@ spring:
           clone-on-start: true
           timeout: 10
           username: ashvani80777
-          password: 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
+
 
           #removing later
 

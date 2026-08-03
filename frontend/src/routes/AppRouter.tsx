@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -24,122 +24,109 @@ import ProtectedRoute from "./ProtectedRoute";
 
 
 const AppRouter = () => {
-  return (
-    <BrowserRouter>
 
-      <Routes>
-
-        {/* PUBLIC ROUTES */}
-
-        <Route path="/" element={<Home />} />
-
-        <Route path="/login" element={<Login />} />
-
-        <Route path="/register" element={<Register />} />
-
-        <Route path="/lost-items" element={<LostItems />} />
-
-        <Route path="/found-items" element={<FoundItems />} />
-
-        <Route path="/items/:id" element={<ItemDetails />} />
-
-
-        {/* PROTECTED ROUTES */}
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+  return(
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/lost-items" element={<LostItems />} />
+      <Route path="/found-items" element={<FoundItems />} />
+      <Route path="/items/:id" element={<ItemDetails />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/profile/edit"
-          element={
-            <ProtectedRoute>
-              <EditProfile />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/profile/edit"
+        element={
+          <ProtectedRoute>
+            <EditProfile />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/items/create-lost"
-          element={
-            <ProtectedRoute>
-              <CreateLostItem />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/items/create-lost"
+        element={
+          <ProtectedRoute>
+            <CreateLostItem />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/items/create-found"
-          element={
-            <ProtectedRoute>
-              <CreateFoundItem />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/items/create-found"
+        element={
+          <ProtectedRoute>
+            <CreateFoundItem />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/my-items"
-          element={
-            <ProtectedRoute>
-              <MyItems />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/my-items"
+        element={
+          <ProtectedRoute>
+            <MyItems />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/items/edit/:id"
-          element={
-            <ProtectedRoute>
-              <EditItem />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/items/edit/:id"
+        element={
+          <ProtectedRoute>
+            <EditItem />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/claims"
-          element={
-            <ProtectedRoute>
-              <MyClaims />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/claims"
+        element={
+          <ProtectedRoute>
+            <MyClaims />
+          </ProtectedRoute>
+        }
+      />
 
 
-        <Route
-          path="/chat/:chatRoomId"
-          element={
-            <ProtectedRoute>
-              <ChatPage />
-            </ProtectedRoute>
-          }
-        />
+      <Route
+        path="/chat/:chatRoomId"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        }
+      />
 
 
-      </Routes>
-
-    </BrowserRouter>
+    </Routes>
   );
+
 };
+
 
 export default AppRouter;

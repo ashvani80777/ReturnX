@@ -2,6 +2,7 @@ package com.returnX.auth_service.service;
 
 import com.returnX.auth_service.entity.User;
 import com.returnX.auth_service.repository.UserRepository;
+import com.returnX.auth_service.service.client.NotificationClient;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

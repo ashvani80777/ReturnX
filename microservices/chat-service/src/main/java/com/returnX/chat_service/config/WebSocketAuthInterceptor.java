@@ -7,7 +7,11 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
@@ -22,19 +26,37 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
+
             String header = accessor.getFirstNativeHeader("Authorization");
+
 
             if (header != null && header.startsWith("Bearer ")) {
 
                 String token = header.substring(7);
 
+
                 if (jwtService.isTokenValid(token)) {
 
                     String email = jwtService.extractEmail(token);
 
-                    accessor.setUser(() -> email);
+
+                    Authentication authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    email,
+                                    null,
+                                    Collections.emptyList()
+                            );
+
+                    accessor.setUser(authentication);
+
+                } else {
+
                 }
+
+            } else {
+
             }
+
         }
 
         return message;

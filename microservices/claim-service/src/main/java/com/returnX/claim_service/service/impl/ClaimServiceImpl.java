@@ -1,16 +1,13 @@
 package com.returnX.claim_service.service.impl;
 
-import com.returnX.claim_service.dto.ClaimResponse;
-import com.returnX.claim_service.dto.CreateClaimResponse;
-import com.returnX.claim_service.dto.ItemResponse;
+import com.returnX.claim_service.dto.*;
 import com.returnX.claim_service.entity.Claim;
-import com.returnX.claim_service.exception.ClaimAlreadyExistsException;
-import com.returnX.claim_service.exception.ClaimNotFoundException;
-import com.returnX.claim_service.exception.ItemServiceException;
-import com.returnX.claim_service.exception.UnauthorizedException;
+import com.returnX.claim_service.enums.NotificationType;
+import com.returnX.claim_service.enums.ReferenceType;
+import com.returnX.claim_service.exception.*;
 import com.returnX.claim_service.repository.ClaimRepository;
 import com.returnX.claim_service.service.ClaimService;
-import com.returnX.claim_service.service.client.ItemClient;
+import com.returnX.claim_service.service.client.*;
 import feign.FeignException;
 import org.springframework.stereotype.Service;
 
@@ -22,43 +19,56 @@ public class ClaimServiceImpl implements ClaimService {
 
     private final ClaimRepository claimRepository;
     private final ItemClient itemClient;
+    private final NotificationClient notificationClient;
 
-    public ClaimServiceImpl(ClaimRepository claimRepository,
-                            ItemClient itemClient) {
+    public ClaimServiceImpl(
+            ClaimRepository claimRepository,
+            ItemClient itemClient,
+            NotificationClient notificationClient) {
         this.claimRepository = claimRepository;
         this.itemClient = itemClient;
+        this.notificationClient = notificationClient;
     }
 
     @Override
-    public CreateClaimResponse createClaim(Long itemId, String email) {
+    public CreateClaimResponse createClaim(Long itemId,String email){
 
         ItemResponse item;
 
-        try {
-            item = itemClient.getItemById(itemId);
-        } catch (FeignException.NotFound e) {
+        try{
+            item=itemClient.getItemById(itemId);
+        }catch(FeignException.NotFound e){
             throw new ItemServiceException("Item not found");
-        } catch (FeignException e) {
+        }catch(FeignException e){
             throw new ItemServiceException("Unable to communicate with Item Service");
         }
 
-        if (item.getOwnerEmail().equalsIgnoreCase(email)) {
+        if(item.getOwnerEmail().equalsIgnoreCase(email))
             throw new UnauthorizedException("You cannot claim your own item");
-        }
 
-        String claimerEmail = email.toLowerCase();
+        String claimerEmail=email.toLowerCase();
 
-        if (claimRepository.existsByItemIdAndClaimerEmail(itemId, claimerEmail)) {
+        if(claimRepository.existsByItemIdAndClaimerEmail(itemId,claimerEmail))
             throw new ClaimAlreadyExistsException("You have already claimed this item");
-        }
 
-        Claim claim = new Claim();
+        Claim claim=new Claim();
         claim.setItemId(itemId);
         claim.setOwnerEmail(item.getOwnerEmail());
         claim.setClaimerEmail(claimerEmail);
         claim.setChatRoomId(UUID.randomUUID().toString());
 
-        claim = claimRepository.save(claim);
+        claim=claimRepository.save(claim);
+
+        notificationClient.createNotification(
+                CreateNotificationRequest.builder()
+                        .userEmail(item.getOwnerEmail())
+                        .title("Item Claimed")
+                        .message("Someone claimed your lost item")
+                        .type(NotificationType.ITEM_CLAIMED.toString())
+                        .referenceId(String.valueOf(claim.getId()))
+                        .referenceType(ReferenceType.CLAIM.toString())
+                        .build()
+        );
 
         return new CreateClaimResponse(
                 claim.getId(),
@@ -68,8 +78,7 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public List<ClaimResponse> getMyClaims(String email) {
-
+    public List<ClaimResponse> getMyClaims(String email){
         return claimRepository
                 .findByClaimerEmailOrderByClaimedAtDesc(email.toLowerCase())
                 .stream()
@@ -78,17 +87,15 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public ClaimResponse getClaimById(Long claimId) {
+    public ClaimResponse getClaimById(Long claimId){
 
-        Claim claim = claimRepository.findById(claimId)
-                .orElseThrow(() ->
-                        new ClaimNotFoundException("Claim not found"));
-
-        return mapToResponse(claim);
+        return mapToResponse(
+                claimRepository.findById(claimId)
+                        .orElseThrow(() -> new ClaimNotFoundException("Claim not found"))
+        );
     }
 
-    private ClaimResponse mapToResponse(Claim claim) {
-
+    private ClaimResponse mapToResponse(Claim claim){
         return new ClaimResponse(
                 claim.getId(),
                 claim.getItemId(),

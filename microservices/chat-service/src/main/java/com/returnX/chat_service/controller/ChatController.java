@@ -7,12 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-
-import java.security.Principal;
-import java.util.List;
-
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,18 +18,14 @@ public class ChatController {
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
 
-
     @MessageMapping("/chat.send")
-    public void sendMessage(
-            MessageRequest request,
-            Principal principal
-    ) {
-
-        String senderEmail = principal.getName();
+    public void sendMessage(MessageRequest request) {
 
         MessageResponse response =
-                chatService.saveMessage(request, senderEmail);
-
+                chatService.saveMessage(
+                        request,
+                        request.getSenderEmail()
+                );
 
         messagingTemplate.convertAndSend(
                 "/topic/chat/" + request.getChatRoomId(),
@@ -40,14 +33,12 @@ public class ChatController {
         );
     }
 
-
     @RestController
     @RequestMapping("/chat")
     @RequiredArgsConstructor
     static class ChatHistoryController {
 
         private final ChatService chatService;
-
 
         @GetMapping("/{chatRoomId}")
         public List<MessageResponse> getHistory(

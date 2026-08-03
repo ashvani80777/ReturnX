@@ -2,15 +2,21 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const token = localStorage.getItem("token");
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) =>
+    location.pathname === path;
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const navClass = (path: string) =>
+    isActive(path)
+      ? "font-semibold text-orange-500"
+      : "text-slate-600 transition hover:text-orange-500";
+
+  const logout = () => {
+    localStorage.clear();
     navigate("/login");
   };
 
@@ -32,34 +38,68 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Navigation */}
         {token && (
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-6 lg:flex">
+
             <Link
               to="/dashboard"
-              className={`transition ${
-                isActive("/dashboard")
-                  ? "font-semibold text-orange-500"
-                  : "text-slate-600 hover:text-orange-500"
-              }`}
+              className={navClass("/dashboard")}
             >
               Dashboard
             </Link>
 
             <Link
-              to="/profile"
-              className={`transition ${
-                isActive("/profile")
-                  ? "font-semibold text-orange-500"
-                  : "text-slate-600 hover:text-orange-500"
-              }`}
+              to="/lost-items"
+              className={navClass("/lost-items")}
             >
-              My Profile
+              Lost Items
             </Link>
+
+            <Link
+              to="/found-items"
+              className={navClass("/found-items")}
+            >
+              Found Items
+            </Link>
+
+            <Link
+              to="/items/create-lost"
+              className={navClass("/items/create-lost")}
+            >
+              Report Lost
+            </Link>
+
+            <Link
+              to="/items/create-found"
+              className={navClass("/items/create-found")}
+            >
+              Report Found
+            </Link>
+
+            <Link
+              to="/my-items"
+              className={navClass("/my-items")}
+            >
+              My Items
+            </Link>
+
+            <Link
+              to="/claims"
+              className={navClass("/claims")}
+            >
+              My Claims
+            </Link>
+
+            <Link
+              to="/profile"
+              className={navClass("/profile")}
+            >
+              Profile
+            </Link>
+
           </nav>
         )}
 
-        {/* Right */}
         <div className="flex items-center gap-3">
 
           {!token ? (
@@ -68,13 +108,18 @@ const Navbar = () => {
                 <Link to="/login">Login</Link>
               </Button>
 
-              <Button className="bg-orange-500 hover:bg-orange-600" asChild>
-                <Link to="/register">Register</Link>
+              <Button
+                asChild
+                className="bg-orange-500 hover:bg-orange-600"
+              >
+                <Link to="/register">
+                  Register
+                </Link>
               </Button>
             </>
           ) : (
             <Button
-              onClick={handleLogout}
+              onClick={logout}
               className="bg-orange-500 hover:bg-orange-600"
             >
               Logout

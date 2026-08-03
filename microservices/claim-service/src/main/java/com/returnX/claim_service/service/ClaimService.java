@@ -13,4 +13,5 @@ public interface ClaimService {
 
     ClaimResponse getClaimById(Long claimId);
 
+    ClaimResponse getByChatRoomId(String chatRoomId);
 }

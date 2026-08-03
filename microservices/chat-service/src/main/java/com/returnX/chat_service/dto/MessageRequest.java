@@ -5,12 +5,13 @@ import lombok.Data;
 
 @Data
 public class MessageRequest {
+
     @NotBlank
     private String chatRoomId;
+
     @NotBlank
     private String senderEmail;
 
-    private String receiverEmail;
     @NotBlank
     private String message;
 }

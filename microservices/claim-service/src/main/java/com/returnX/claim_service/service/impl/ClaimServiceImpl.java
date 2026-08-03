@@ -105,4 +105,14 @@ public class ClaimServiceImpl implements ClaimService {
                 claim.getClaimedAt()
         );
     }
+
+    @Override
+    public ClaimResponse getByChatRoomId(String chatRoomId){
+
+        Claim claim = claimRepository.findByChatRoomId(chatRoomId)
+                .orElseThrow(() ->
+                        new ClaimNotFoundException("Claim not found"));
+
+        return mapToResponse(claim);
+    }
 }

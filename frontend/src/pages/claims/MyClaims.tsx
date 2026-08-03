@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getMyClaims, type ClaimResponse } from "@/services/claimService";
+import {
+  getMyClaims,
+  type ClaimResponse,
+} from "@/services/claimService";
 
 const MyClaims = () => {
   const [claims, setClaims] = useState<ClaimResponse[]>([]);
@@ -16,6 +19,9 @@ const MyClaims = () => {
   const loadClaims = async () => {
     try {
       const data = await getMyClaims();
+
+      console.log("Claims Response:", data);
+
       setClaims(data);
     } finally {
       setLoading(false);
@@ -42,15 +48,44 @@ const MyClaims = () => {
             <Card key={claim.id}>
               <CardContent className="flex items-center justify-between p-5">
                 <div className="space-y-1">
-                  <p><b>Claim ID:</b> {claim.id}</p>
-                  <p><b>Item ID:</b> {claim.itemId}</p>
-                  <p><b>Owner:</b> {claim.ownerEmail}</p>
-                  <p><b>Claimer:</b> {claim.claimerEmail}</p>
-                  <p><b>Claimed At:</b> {new Date(claim.claimedAt).toLocaleString()}</p>
+                  <p>
+                    <b>Claim ID:</b> {claim.id}
+                  </p>
+
+                  <p>
+                    <b>Item ID:</b> {claim.itemId}
+                  </p>
+
+                  <p>
+                    <b>Owner:</b> {claim.ownerEmail}
+                  </p>
+
+                  <p>
+                    <b>Claimer:</b> {claim.claimerEmail}
+                  </p>
+
+                  <p>
+                    <b>Claimed At:</b>{" "}
+                    {new Date(claim.claimedAt).toLocaleString()}
+                  </p>
                 </div>
 
                 <Button asChild>
-                  <Link to={`/chat/${claim.chatRoomId}`}>
+                  <Link
+                    to={`/chat/${claim.chatRoomId}`}
+                    state={{
+                      ownerEmail: claim.ownerEmail,
+                      claimerEmail: claim.claimerEmail,
+                    }}
+                    onClick={() => {
+                      console.log("Navigating With State");
+                      console.log({
+                        ownerEmail: claim.ownerEmail,
+                        claimerEmail: claim.claimerEmail,
+                        chatRoomId: claim.chatRoomId,
+                      });
+                    }}
+                  >
                     Open Chat
                   </Link>
                 </Button>

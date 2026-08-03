@@ -22,7 +22,6 @@ export const sendMessage = async (
   client: Client,
   chatRoomId: string,
   senderEmail: string,
-  receiverEmail: string,
   message: string
 ) => {
   if (!client.connected) return;
@@ -32,7 +31,6 @@ export const sendMessage = async (
     body: JSON.stringify({
       chatRoomId,
       senderEmail,
-      receiverEmail,
       message,
     }),
   });

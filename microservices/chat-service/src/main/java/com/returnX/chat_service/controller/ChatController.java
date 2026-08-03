@@ -21,11 +21,10 @@ public class ChatController {
     @MessageMapping("/chat.send")
     public void sendMessage(MessageRequest request) {
 
-        MessageResponse response =
-                chatService.saveMessage(
-                        request,
-                        request.getSenderEmail()
-                );
+        MessageResponse response = chatService.saveMessage(
+                request,
+                request.getSenderEmail()
+        );
 
         messagingTemplate.convertAndSend(
                 "/topic/chat/" + request.getChatRoomId(),

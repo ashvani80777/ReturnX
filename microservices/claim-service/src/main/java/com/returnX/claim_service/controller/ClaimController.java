@@ -46,4 +46,13 @@ public class ClaimController {
                 claimService.getClaimById(claimId)
         );
     }
+
+    @GetMapping("/chat/{chatRoomId}")
+    public ResponseEntity<ClaimResponse> getByChatRoomId(
+            @PathVariable String chatRoomId) {
+
+        return ResponseEntity.ok(
+                claimService.getByChatRoomId(chatRoomId)
+        );
+    }
 }

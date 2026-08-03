@@ -1,11 +1,13 @@
 package com.returnX.chat_service.service;
 
+import com.returnX.chat_service.dto.ChatClaimResponse;
 import com.returnX.chat_service.dto.CreateNotificationRequest;
 import com.returnX.chat_service.dto.MessageRequest;
 import com.returnX.chat_service.dto.MessageResponse;
 import com.returnX.chat_service.entity.Message;
 import com.returnX.chat_service.entity.MessageStatus;
 import com.returnX.chat_service.repository.MessageRepository;
+import com.returnX.chat_service.service.client.ClaimClient;
 import com.returnX.chat_service.service.client.NotificationClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,13 +21,25 @@ public class ChatService {
 
     private final MessageRepository messageRepository;
     private final NotificationClient notificationClient;
+    private final ClaimClient claimClient;
 
     public MessageResponse saveMessage(MessageRequest request, String senderEmail) {
+
+        ChatClaimResponse claim =
+                claimClient.getClaimByChatRoomId(request.getChatRoomId());
+
+        String receiverEmail;
+
+        if (senderEmail.equalsIgnoreCase(claim.getOwnerEmail())) {
+            receiverEmail = claim.getClaimerEmail();
+        } else {
+            receiverEmail = claim.getOwnerEmail();
+        }
 
         Message message = Message.builder()
                 .chatRoomId(request.getChatRoomId())
                 .senderEmail(senderEmail)
-                .receiverEmail(request.getReceiverEmail())
+                .receiverEmail(receiverEmail)
                 .message(request.getMessage())
                 .status(MessageStatus.SENT)
                 .sentAt(LocalDateTime.now())
@@ -35,7 +49,7 @@ public class ChatService {
 
         notificationClient.createNotification(
                 CreateNotificationRequest.builder()
-                        .userEmail(request.getReceiverEmail())
+                        .userEmail(receiverEmail)
                         .title("New Message")
                         .message("You received a new chat message")
                         .type("CHAT_MESSAGE")

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 import {
   Card,
@@ -8,32 +9,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+import AuthLayout from "@/components/auth/AuthLayout";
 import { loginUser } from "@/services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
-  };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -46,89 +47,104 @@ const Login = () => {
       localStorage.setItem("email", response.email);
       localStorage.setItem("role", response.role);
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (err: any) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Invalid email or password.");
-      }
+      setError(
+        err.response?.data?.message || "Invalid email or password."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <Card className="w-full max-w-md rounded-2xl shadow-xl">
-        <CardHeader className="text-center">
+    <AuthLayout formSide="right">
+      <Card className="w-full max-w-lg min-h-[430px] rounded-2xl shadow-xl">
+
+        <CardHeader className="pb-4 text-center">
           <h1 className="text-4xl font-bold">
             Return<span className="text-orange-500">X</span>
           </h1>
 
-          <CardTitle className="mt-4">
+          <CardTitle className="mt-3">
             Welcome Back
           </CardTitle>
 
           <CardDescription>
-            Sign in to your account
+            Sign in to continue
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
 
             {error && (
-              <div className="rounded-md bg-red-100 p-3 text-sm text-red-600">
+              <div className="rounded-md bg-red-100 p-2 text-sm text-red-600">
                 {error}
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label>Email</Label>
-
               <Input
                 name="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Enter email"
                 value={formData.email}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label>Password</Label>
 
-              <Input
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <div className="relative">
+                <Input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="pr-10"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 text-slate-500 hover:text-orange-500"
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </div>
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600"
               disabled={loading}
+              className="w-full bg-orange-500 hover:bg-orange-600"
             >
               {loading ? "Logging in..." : "Login"}
             </Button>
 
-            <p className="text-center text-sm">
+            <p className="pt-1 text-center text-sm">
               Don't have an account?{" "}
               <Link
                 to="/register"
-                className="font-semibold text-orange-500"
+                className="font-semibold text-orange-500 hover:text-orange-600"
               >
                 Register
               </Link>
             </p>
+
           </form>
         </CardContent>
+
       </Card>
-    </div>
+    </AuthLayout>
   );
 };
 

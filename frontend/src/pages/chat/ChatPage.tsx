@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Client } from "@stomp/stompjs";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,16 +14,9 @@ import {
 
 const ChatPage = () => {
   const { chatRoomId = "" } = useParams();
-  const { state } = useLocation();
 
   const email = localStorage.getItem("email") || "";
   const token = localStorage.getItem("token") || "";
-
-  const ownerEmail = state?.ownerEmail || "";
-  const claimerEmail = state?.claimerEmail || "";
-
-  const receiverEmail =
-    email === ownerEmail ? claimerEmail : ownerEmail;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
@@ -50,7 +43,9 @@ const ChatPage = () => {
     try {
       const data = await getChatHistory(chatRoomId);
       setMessages(data);
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const connectSocket = () => {
@@ -73,6 +68,14 @@ const ChatPage = () => {
           });
         });
       },
+
+      onStompError: (frame) => {
+        console.error("STOMP Error:", frame);
+      },
+
+      onWebSocketError: (event) => {
+        console.error("WebSocket Error:", event);
+      },
     });
 
     client.activate();
@@ -81,25 +84,22 @@ const ChatPage = () => {
 
   const handleSend = async () => {
     if (!text.trim()) return;
-    if (!stomp.current?.connected) return;
 
-    const tempMessage: ChatMessage = {
-      id: Date.now(),
+    if (!stomp.current?.connected) {
+      console.log("Socket not connected");
+      return;
+    }
+
+    console.log("Sending", {
       chatRoomId,
       senderEmail: email,
-      receiverEmail,
       message: text,
-      status: "SENT",
-      sentAt: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, tempMessage]);
+    });
 
     await sendMessage(
       stomp.current,
       chatRoomId,
       email,
-      receiverEmail,
       text
     );
 
@@ -149,7 +149,9 @@ const ChatPage = () => {
               placeholder="Type message..."
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleSend();
+                if (e.key === "Enter") {
+                  handleSend();
+                }
               }}
             />
 

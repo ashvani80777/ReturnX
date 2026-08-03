@@ -33,7 +33,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
-                                "/actuator/**"
+                                "/actuator/**",
+                                "/items/lost",
+                                "/items/found",
+                                "/items/search",
+                                "/items/category/**",
+                                "/items/*"
                         ).permitAll()
 
                         .anyRequest()

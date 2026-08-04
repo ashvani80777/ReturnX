@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,5 +59,11 @@ public class NotificationController {
         notificationService.markAllAsRead(
                 authentication.getName()
         );
+    }
+
+    @DeleteMapping("/admin/user")
+    public ResponseEntity<String> deleteUserNotifications(@RequestParam("email") String email) {
+        notificationService.deleteUserNotifications(email);
+        return ResponseEntity.ok("User notifications deleted successfully.");
     }
 }

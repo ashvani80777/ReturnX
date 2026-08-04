@@ -33,11 +33,26 @@ public class UserController {
     public ResponseEntity<UserResponse> getMyProfile(
             Authentication authentication) {
 
-        Long authUserId = (Long) authentication.getCredentials();
 
-        return ResponseEntity.ok(
-                userService.getProfile(authUserId)
+        System.out.println("ME API HIT");
+
+        System.out.println(
+                "AUTH ID : " + authentication.getCredentials()
         );
+
+
+        Long authUserId =
+                (Long) authentication.getCredentials();
+
+
+        UserResponse response =
+                userService.getProfile(authUserId);
+
+
+        System.out.println(response);
+
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

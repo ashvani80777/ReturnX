@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-
 import {
   Card,
   CardContent,
@@ -12,9 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import AuthLayout from "@/components/auth/AuthLayout";
-import { loginUser } from "@/services/authService";
+import { loginUser, loginAdmin } from "@/services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,11 +26,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,13 +40,23 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const response = await loginUser(formData);
+      const isAdmin =
+        formData.email === "admin@admin.com" &&
+        formData.password === "admin@admin.com";
+
+      const response = isAdmin
+        ? await loginAdmin(formData)
+        : await loginUser(formData);
 
       localStorage.setItem("token", response.token);
-      localStorage.setItem("email", response.email);
+      localStorage.setItem("email", formData.email);
       localStorage.setItem("role", response.role);
 
-      navigate("/");
+      if (response.role === "ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Invalid email or password."
@@ -60,7 +69,6 @@ const Login = () => {
   return (
     <AuthLayout formSide="right">
       <Card className="w-full max-w-lg min-h-[430px] rounded-2xl shadow-xl">
-
         <CardHeader className="pb-4 text-center">
           <h1 className="text-4xl font-bold">
             Return<span className="text-orange-500">X</span>
@@ -92,6 +100,7 @@ const Login = () => {
                 placeholder="Enter email"
                 value={formData.email}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -106,6 +115,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className="pr-10"
+                  required
                 />
 
                 <button
@@ -142,7 +152,6 @@ const Login = () => {
 
           </form>
         </CardContent>
-
       </Card>
     </AuthLayout>
   );

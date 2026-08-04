@@ -17,14 +17,18 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter
+    ) {
+
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http
+    ) throws Exception {
 
 
         http
@@ -36,15 +40,29 @@ public class SecurityConfig {
                         )
                 )
 
+
                 .authorizeHttpRequests(auth -> auth
+
 
                         .requestMatchers(
                                 "/actuator/**",
                                 "/users"
-                        ).permitAll()
+                        )
+                        .permitAll()
+
+
+                        .requestMatchers(
+                                "/users/**"
+                        )
+                        .hasAnyRole(
+                                "USER",
+                                "ADMIN"
+                        )
+
 
                         .anyRequest()
                         .authenticated()
+
                 )
 
 
@@ -56,4 +74,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }

@@ -9,6 +9,7 @@ import com.returnX.claim_service.repository.ClaimRepository;
 import com.returnX.claim_service.service.ClaimService;
 import com.returnX.claim_service.service.client.*;
 import feign.FeignException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -125,5 +126,12 @@ public class ClaimServiceImpl implements ClaimService {
                         new ClaimNotFoundException("Claim not found"));
 
         return mapToResponse(claim);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllUserClaims(String email) {
+        String userEmail = email.toLowerCase();
+        claimRepository.deleteByClaimerEmailIgnoreCaseOrOwnerEmailIgnoreCase(userEmail, userEmail);
     }
 }

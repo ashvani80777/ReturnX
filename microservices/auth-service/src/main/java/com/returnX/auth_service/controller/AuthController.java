@@ -50,5 +50,15 @@ public class AuthController {
         authService.logout();
         return ResponseEntity.ok("Logged out successfully");
     }
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(
+            @PathVariable Long id
+    ){
+        authService.deleteUser(id);
+
+        return ResponseEntity.ok(
+                "Auth user deleted successfully"
+        );
+    }
 
 }

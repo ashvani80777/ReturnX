@@ -7,6 +7,7 @@ import com.returnX.notification_service.enums.NotificationStatus;
 import com.returnX.notification_service.mapper.NotificationMapper;
 import com.returnX.notification_service.repository.NotificationRepository;
 import com.returnX.notification_service.service.NotificationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -74,5 +75,12 @@ public class NotificationServiceImpl implements NotificationService {
                     notification.setStatus(NotificationStatus.READ);
                     notification.setReadAt(LocalDateTime.now());
                 });
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteUserNotifications(String userEmail) {
+        notificationRepository.deleteByUserEmail(userEmail);
     }
 }

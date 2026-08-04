@@ -9,6 +9,7 @@ import com.returnX.chat_service.entity.MessageStatus;
 import com.returnX.chat_service.repository.MessageRepository;
 import com.returnX.chat_service.service.client.ClaimClient;
 import com.returnX.chat_service.service.client.NotificationClient;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +67,12 @@ public class ChatService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Transactional
+    public void deleteUserMessages(String email) {
+        String userEmail = email.toLowerCase();
+        messageRepository.deleteBySenderEmailIgnoreCaseOrReceiverEmailIgnoreCase(userEmail, userEmail);
     }
 
     private MessageResponse mapToResponse(Message message) {

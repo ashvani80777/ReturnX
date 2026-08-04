@@ -100,4 +100,34 @@ public class ItemController {
         itemService.deleteItem(itemId, auth.getName());
         return ResponseEntity.ok("Item deleted successfully");
     }
+
+    @DeleteMapping("/admin/{itemId}")
+    public ResponseEntity<String> adminDeleteItem(
+            @PathVariable Long itemId
+    ){
+
+        itemService.adminDeleteItem(itemId);
+
+        return ResponseEntity.ok(
+                "Item deleted by admin successfully"
+        );
+    }
+
+    @PutMapping("/admin/{itemId}/returned")
+    public ResponseEntity<String> adminMarkReturned(
+            @PathVariable Long itemId
+    ){
+
+        itemService.adminMarkAsReturned(itemId);
+
+        return ResponseEntity.ok(
+                "Item marked returned by admin"
+        );
+    }
+
+    @DeleteMapping("/admin/user")
+    public ResponseEntity<String> deleteAllUserItems(@RequestParam("email") String email) {
+        itemService.deleteAllItemsByOwnerEmail(email);
+        return ResponseEntity.ok("All items for user " + email + " deleted successfully.");
+    }
 }

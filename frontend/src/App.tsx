@@ -10,7 +10,8 @@ function Layout(){
 
   const hideNavbar =
     location.pathname === "/login" ||
-    location.pathname === "/register";
+    location.pathname === "/register" ||
+    location.pathname.startsWith("/admin");
 
   return(
     <>
@@ -19,7 +20,6 @@ function Layout(){
     </>
   );
 }
-
 
 function App(){
 

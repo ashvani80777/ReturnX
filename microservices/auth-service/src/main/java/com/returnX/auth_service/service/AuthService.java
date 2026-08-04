@@ -8,4 +8,5 @@ public interface AuthService {
     UserResponse getCurrentUser();
     void changePassword(ChangePasswordRequest request);
     void logout();
+    public void deleteUser(Long id);
 }

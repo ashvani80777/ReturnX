@@ -25,16 +25,19 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserClient userClient;
     private final NotificationClient notificationClient;
+    private final RewardClient rewardClient;
 
     public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
                            AuthenticationManager authenticationManager, JwtService jwtService,
-                           UserClient userClient, NotificationClient notificationClient) {
+                           UserClient userClient, NotificationClient notificationClient,
+                           RewardClient rewardClient) {
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
         this.authenticationManager=authenticationManager;
         this.jwtService=jwtService;
         this.userClient=userClient;
         this.notificationClient=notificationClient;
+        this.rewardClient=rewardClient;
     }
 
     @Override
@@ -58,6 +61,17 @@ public class AuthServiceImpl implements AuthService {
         profile.setAddress(request.getAddress());
 
         userClient.createUser(profile);
+
+        rewardClient.createReward(
+                RewardRequest.builder()
+                        .userEmail(saved.getEmail())
+                        .points(50)
+                        .actionType("FIRST_REGISTER")
+                        .reason("First Registration Bonus")
+                        .referenceType("USER")
+                        .referenceId(saved.getId())
+                        .build()
+        );
 
         notificationClient.createNotification(
                 CreateNotificationRequest.builder()
@@ -117,4 +131,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(){}
+
+
+    @Override
+    public void deleteUser(Long id){
+
+        userRepository.deleteById(id);
+
+    }
 }

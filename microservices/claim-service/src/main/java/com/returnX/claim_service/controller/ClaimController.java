@@ -64,4 +64,10 @@ public class ClaimController {
                 claimService.getByChatRoomId(chatRoomId)
         );
     }
+
+    @DeleteMapping("/admin/user")
+    public ResponseEntity<String> deleteAllUserClaims(@RequestParam("email") String email) {
+        claimService.deleteAllUserClaims(email);
+        return ResponseEntity.ok("User claims deleted successfully.");
+    }
 }

@@ -16,4 +16,6 @@ public interface ClaimService {
     ClaimResponse getByChatRoomId(String chatRoomId);
 
     List<ClaimResponse> getOwnerClaims(String email);
+
+    void deleteAllUserClaims(String email);
 }

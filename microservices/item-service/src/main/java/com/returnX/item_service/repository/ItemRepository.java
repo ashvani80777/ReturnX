@@ -4,6 +4,7 @@ import com.returnX.item_service.entity.Item;
 import com.returnX.item_service.enums.ItemCategory;
 import com.returnX.item_service.enums.ItemStatus;
 import com.returnX.item_service.enums.ItemType;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,5 +37,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             String location,
             Pageable pageable
     );
+
+    @Transactional
+    void deleteByOwnerEmail(String ownerEmail);
 
 }

@@ -68,5 +68,11 @@ public interface ItemService {
             Long itemId,
             String ownerEmail
     );
+    void adminDeleteItem(Long itemId);
+
+
+    void adminMarkAsReturned(Long itemId);
+    void deleteAllItemsByOwnerEmail(String ownerEmail);
+
 
 }

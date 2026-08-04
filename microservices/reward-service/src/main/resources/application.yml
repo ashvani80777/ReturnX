@@ -1,0 +1,39 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: reward-service
+
+  config:
+    import: optional:configserver:http://localhost:9091
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/returnx_reward
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+jwt:
+  secret: 8T4qvY7nLm2ZxP9kHs6RwQ3eFd8BaJ5Nc1UvX0MgKe7TyI4OpLs9Dh2QrW6XeFa

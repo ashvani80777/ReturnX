@@ -26,6 +26,7 @@ import Notifications from "@/pages/Notification";
 
 import ProtectedRoute from "./ProtectedRoute";
 import OwnerChats from "@/pages/chat/OwnerChat";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 
 const Private=({children}:{children:React.ReactNode})=>
@@ -49,6 +50,7 @@ const AppRouter=()=>(
  <Route path="/found-items" element={<FoundItems/>}/>
 
  <Route path="/items/:id" element={<ItemDetails/>}/>
+ <Route path="/admin/dashboard" element={<AdminDashboard/>}/>
 
 
 

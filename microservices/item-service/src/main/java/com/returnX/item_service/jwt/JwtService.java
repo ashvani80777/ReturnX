@@ -15,21 +15,36 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
+
     private SecretKey getSigningKey() {
+
         return Keys.hmacShaKeyFor(
                 secret.getBytes(StandardCharsets.UTF_8)
         );
     }
 
+
     public String extractEmail(String token) {
-        return extractClaims(token).getSubject();
+
+        return extractClaims(token)
+                .getSubject();
     }
 
+
+    public String extractRole(String token) {
+
+        return extractClaims(token)
+                .get("role", String.class);
+    }
+
+
     public boolean isTokenValid(String token) {
+
         return extractClaims(token)
                 .getExpiration()
                 .after(new java.util.Date());
     }
+
 
     private Claims extractClaims(String token) {
 

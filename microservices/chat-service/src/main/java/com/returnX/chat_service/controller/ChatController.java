@@ -4,6 +4,7 @@ import com.returnX.chat_service.dto.MessageRequest;
 import com.returnX.chat_service.dto.MessageResponse;
 import com.returnX.chat_service.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -44,6 +45,14 @@ public class ChatController {
                 @PathVariable String chatRoomId
         ) {
             return chatService.getChatHistory(chatRoomId);
+        }
+
+        @DeleteMapping("/admin/user")
+        public ResponseEntity<String> deleteUserMessages(
+                @RequestParam("email") String email
+        ) {
+            chatService.deleteUserMessages(email);
+            return ResponseEntity.ok("User chat messages deleted successfully.");
         }
     }
 }

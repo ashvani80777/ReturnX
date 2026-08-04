@@ -2,6 +2,7 @@ package com.returnX.notification_service.repository;
 
 import com.returnX.notification_service.entity.Notification;
 import com.returnX.notification_service.enums.NotificationStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     long countByUserEmailAndStatus(String userEmail, NotificationStatus status);
 
     List<Notification> findByUserEmailOrderByCreatedAtDesc(String userEmail);
+
+    @Transactional
+    void deleteByUserEmail(String userEmail);
 }

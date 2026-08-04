@@ -5,8 +5,8 @@ export interface CreateClaimRequest {
 export interface ClaimResponse {
   id: number;
   itemId: number;
-  claimantEmail: string;
   ownerEmail: string;
-  chatRoomId: number;
-  createdAt: string;
+  claimerEmail: string; 
+  chatRoomId: string;  
+  claimedAt: string;
 }

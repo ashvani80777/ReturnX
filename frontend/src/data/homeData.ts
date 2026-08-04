@@ -1,4 +1,35 @@
-export const steps = [
+export interface StepItem {
+  step: string;
+  title: string;
+  desc: string;
+  icon: string;
+}
+
+export interface FeatureItem {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+export interface RewardRule {
+  points: string;
+  title: string;
+  desc: string;
+}
+
+export interface PlatformStat {
+  number: string;
+  title: string;
+  icon: string;
+}
+
+export interface LeaderboardHelper {
+  rank: string;
+  name: string;
+  points: string;
+}
+
+export const steps: StepItem[] = [
   {
     step: "01",
     title: "Report Item",
@@ -25,8 +56,7 @@ export const steps = [
   },
 ];
 
-
-export const features = [
+export const features: FeatureItem[] = [
   {
     icon: "🔐",
     title: "Secure Authentication",
@@ -59,64 +89,61 @@ export const features = [
   },
 ];
 
-
-export const rewards = [
+export const rewards: RewardRule[] = [
   {
-    points:"+10",
-    title:"Report Found Item",
-    desc:"Earn points for genuine found item reports.",
+    points: "+10",
+    title: "Report Found Item",
+    desc: "Earn points for genuine found item reports.",
   },
   {
-    points:"+50",
-    title:"Successful Return",
-    desc:"Reward after successful handover.",
+    points: "+50",
+    title: "Successful Return",
+    desc: "Reward after successful handover.",
   },
   {
-    points:"+100",
-    title:"First Return",
-    desc:"Bonus for your first recovery.",
-  },
-];
-
-
-export const stats = [
-  {
-    number:"500+",
-    title:"Items Reported",
-    icon:"📦",
-  },
-  {
-    number:"350+",
-    title:"Items Returned",
-    icon:"🤝",
-  },
-  {
-    number:"1000+",
-    title:"Active Employees",
-    icon:"👥",
-  },
-  {
-    number:"5000+",
-    title:"Karma Points",
-    icon:"🏆",
+    points: "+100",
+    title: "First Return",
+    desc: "Bonus for your first recovery.",
   },
 ];
 
+export const stats: PlatformStat[] = [
+  {
+    number: "500+",
+    title: "Items Reported",
+    icon: "📦",
+  },
+  {
+    number: "350+",
+    title: "Items Returned",
+    icon: "🤝",
+  },
+  {
+    number: "1000+",
+    title: "Active Employees",
+    icon: "👥",
+  },
+  {
+    number: "5000+",
+    title: "Karma Points",
+    icon: "🏆",
+  },
+];
 
-export const helpers = [
+export const helpers: LeaderboardHelper[] = [
   {
-    rank:"🥇",
-    name:"Rahul Sharma",
-    points:"520 Karma",
+    rank: "🥇",
+    name: "Rahul Sharma",
+    points: "520 Karma",
   },
   {
-    rank:"🥈",
-    name:"Amit Kumar",
-    points:"430 Karma",
+    rank: "🥈",
+    name: "Amit Kumar",
+    points: "430 Karma",
   },
   {
-    rank:"🥉",
-    name:"Priya Singh",
-    points:"390 Karma",
+    rank: "🥉",
+    name: "Priya Singh",
+    points: "390 Karma",
   },
 ];

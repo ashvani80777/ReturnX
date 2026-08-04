@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+
 import {
   Card,
   CardContent,
@@ -27,7 +28,7 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -74,18 +75,13 @@ const Login = () => {
             Return<span className="text-orange-500">X</span>
           </h1>
 
-          <CardTitle className="mt-3">
-            Welcome Back
-          </CardTitle>
+          <CardTitle className="mt-3">Welcome Back</CardTitle>
 
-          <CardDescription>
-            Sign in to continue
-          </CardDescription>
+          <CardDescription>Sign in to continue</CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {error && (
               <div className="rounded-md bg-red-100 p-2 text-sm text-red-600">
                 {error}
@@ -149,7 +145,6 @@ const Login = () => {
                 Register
               </Link>
             </p>
-
           </form>
         </CardContent>
       </Card>

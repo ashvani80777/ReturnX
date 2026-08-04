@@ -1,9 +1,9 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Bell } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import NotificationPopover from "./NotidicationPopover";
 
 const Navbar = () => {
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,62 +39,34 @@ const Navbar = () => {
     title: string;
     items: [string, string][];
   }) => (
-    <div className="relative group">
-
+    <div className="group relative">
       <button className="flex items-center gap-1 text-slate-600 transition hover:text-orange-500">
-
         {title}
-
         <ChevronDown size={16} />
-
       </button>
 
       <div className="invisible absolute left-0 top-8 w-56 rounded-xl border bg-white p-2 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:opacity-100">
-
         {menu(items)}
-
       </div>
-
     </div>
   );
 
   return (
-
     <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
-
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-
-        <Link
-          to="/"
-          className="flex items-center gap-2"
-        >
-
+        <Link to="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500 text-xl font-bold text-white">
-
             X
-
           </div>
-
           <span className="text-2xl font-bold text-slate-800">
-
-            Return
-            <span className="text-orange-500">
-              X
-            </span>
-
+            Return<span className="text-orange-500">X</span>
           </span>
-
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex">
-
           {token ? (
             <>
-
-              <Link
-                to="/"
-                className={navClass("/")}
-              >
+              <Link to="/" className={navClass("/")}>
                 Home
               </Link>
 
@@ -117,75 +89,39 @@ const Navbar = () => {
                 ]}
               />
 
-              <Link
-                to="/leaderboard"
-                className={navClass("/leaderboard")}
-              >
+              <Link to="/leaderboard" className={navClass("/leaderboard")}>
                 Leaderboard
               </Link>
 
-              <Link
-                to="/profile"
-                className={navClass("/profile")}
-              >
+              <Link to="/profile" className={navClass("/profile")}>
                 Profile
               </Link>
 
-              <Link
-                to="/dashboard"
-                className={navClass("/dashboard")}
-              >
+              <Link to="/dashboard" className={navClass("/dashboard")}>
                 Dashboard
               </Link>
-
             </>
           ) : (
             <>
-
-              <Link
-                to="/"
-                className={navClass("/")}
-              >
+              <Link to="/" className={navClass("/")}>
                 Home
               </Link>
 
-              <Link
-                to="/lost-items"
-                className={navClass("/lost-items")}
-              >
+              <Link to="/lost-items" className={navClass("/lost-items")}>
                 Lost Items
               </Link>
 
-              <Link
-                to="/found-items"
-                className={navClass("/found-items")}
-              >
+              <Link to="/found-items" className={navClass("/found-items")}>
                 Found Items
               </Link>
-
             </>
           )}
-
         </nav>
 
         <div className="flex items-center gap-3">
-
           {token ? (
             <>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-11 w-11 rounded-full bg-orange-50 hover:bg-orange-100"
-                onClick={() => navigate("/notifications")}
-              >
-
-                <Bell
-                  size={26}
-                  className="text-orange-500"
-                />
-
-              </Button>
+              <NotificationPopover />
 
               <Button
                 onClick={logout}
@@ -193,40 +129,25 @@ const Navbar = () => {
               >
                 Logout
               </Button>
-
             </>
           ) : (
             <>
-
-              <Button
-                variant="ghost"
-                asChild
-              >
-                <Link to="/login">
-                  Login
-                </Link>
+              <Button variant="ghost" asChild>
+                <Link to="/login">Login</Link>
               </Button>
 
               <Button
                 asChild
                 className="bg-orange-500 hover:bg-orange-600"
               >
-                <Link to="/register">
-                  Register
-                </Link>
+                <Link to="/register">Register</Link>
               </Button>
-
             </>
           )}
-
         </div>
-
       </div>
-
     </header>
-
   );
-
 };
 
 export default Navbar;

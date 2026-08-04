@@ -34,7 +34,7 @@ const Register = () => {
   const [success, setSuccess] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -54,7 +54,6 @@ const Register = () => {
       setTimeout(() => {
         navigate("/login");
       }, 1500);
-
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Registration failed."
@@ -66,37 +65,26 @@ const Register = () => {
 
   return (
     <AuthLayout formSide="left">
-
       <Card className="w-full max-w-lg rounded-2xl shadow-xl">
-
         <CardHeader className="pb-4 text-center">
-
           <h1 className="text-4xl font-bold">
             Return<span className="text-orange-500">X</span>
           </h1>
 
-          <CardTitle className="mt-3">
-            Create Account
-          </CardTitle>
+          <CardTitle className="mt-3">Create Account</CardTitle>
 
           <CardDescription>
             Join ReturnX and reconnect lost items
           </CardDescription>
-
         </CardHeader>
 
-
         <CardContent>
-
           <form onSubmit={handleSubmit} className="space-y-3">
-
-
             {error && (
               <div className="rounded-md bg-red-100 p-2 text-sm text-red-600">
                 {error}
               </div>
             )}
-
 
             {success && (
               <div className="rounded-md bg-green-100 p-2 text-sm text-green-600">
@@ -104,10 +92,7 @@ const Register = () => {
               </div>
             )}
 
-
-
             <div className="grid grid-cols-2 gap-3">
-
               <div className="space-y-1">
                 <Label>First Name</Label>
                 <Input
@@ -115,9 +100,9 @@ const Register = () => {
                   value={formData.firstName}
                   onChange={handleChange}
                   placeholder="First name"
+                  required
                 />
               </div>
-
 
               <div className="space-y-1">
                 <Label>Last Name</Label>
@@ -126,15 +111,12 @@ const Register = () => {
                   value={formData.lastName}
                   onChange={handleChange}
                   placeholder="Last name"
+                  required
                 />
               </div>
-
             </div>
 
-
-
             <div className="grid grid-cols-2 gap-3">
-
               <div className="space-y-1">
                 <Label>Email</Label>
                 <Input
@@ -143,15 +125,14 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email"
+                  required
                 />
               </div>
-
 
               <div className="space-y-1">
                 <Label>Password</Label>
 
                 <div className="relative">
-
                   <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
@@ -159,27 +140,23 @@ const Register = () => {
                     onChange={handleChange}
                     placeholder="Password"
                     className="pr-10"
+                    required
                   />
 
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2 text-slate-500 hover:text-orange-500"
+                    className="absolute right-3 top-2.5 text-slate-500 hover:text-orange-500"
                   >
-                    {
-                      showPassword
-                      ? <EyeOff size={18}/>
-                      : <Eye size={18}/>
-                    }
+                    {showPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
                   </button>
-
                 </div>
-
               </div>
-
             </div>
-
-
 
             <div className="space-y-1">
               <Label>Phone Number</Label>
@@ -191,8 +168,6 @@ const Register = () => {
               />
             </div>
 
-
-
             <div className="space-y-1">
               <Label>Address</Label>
               <Input
@@ -203,8 +178,6 @@ const Register = () => {
               />
             </div>
 
-
-
             <Button
               type="submit"
               disabled={loading}
@@ -213,28 +186,18 @@ const Register = () => {
               {loading ? "Creating Account..." : "Create Account"}
             </Button>
 
-
-
             <p className="pt-1 text-center text-sm">
-
               Already have an account?{" "}
-
               <Link
                 to="/login"
                 className="font-semibold text-orange-500 hover:text-orange-600"
               >
                 Login
               </Link>
-
             </p>
-
-
           </form>
-
         </CardContent>
-
       </Card>
-
     </AuthLayout>
   );
 };

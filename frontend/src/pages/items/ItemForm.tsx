@@ -130,16 +130,14 @@ export default function ItemForm({
               type="file"
               accept="image/*"
               required={requireImage}
-              onChange={(e) =>
-                setImage(e.target.files?.[0])
-              }
+              onChange={(e) => setImage(e.target.files?.[0])}
             />
           </div>
 
           <Button
             type="submit"
             disabled={loading}
-            className="w-full"
+            className="w-full bg-orange-500 hover:bg-orange-600"
           >
             {loading && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

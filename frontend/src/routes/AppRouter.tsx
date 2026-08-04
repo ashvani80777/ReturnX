@@ -1,4 +1,4 @@
-import {Routes,Route} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -22,71 +22,47 @@ import MyClaims from "@/pages/claims/MyClaims";
 import ChatPage from "@/pages/chat/ChatPage";
 
 import Leaderboard from "@/pages/Leaderboard";
-import Notifications from "@/pages/Notification";
 
 import ProtectedRoute from "./ProtectedRoute";
 import OwnerChats from "@/pages/chat/OwnerChat";
 import AdminDashboard from "@/pages/AdminDashboard";
 
-
-const Private=({children}:{children:React.ReactNode})=>
- <ProtectedRoute>
-  {children}
- </ProtectedRoute>;
-
-
-
-const AppRouter=()=>(
-<Routes>
-
-
- <Route path="/" element={<Home/>}/>
-
- <Route path="/login" element={<Login/>}/>
-
- <Route path="/register" element={<Register/>}/>
- <Route path="/lost-items" element={<LostItems/>}/>
-
- <Route path="/found-items" element={<FoundItems/>}/>
-
- <Route path="/items/:id" element={<ItemDetails/>}/>
- <Route path="/admin/dashboard" element={<AdminDashboard/>}/>
-
-
-
- {[
-  ["/dashboard",<Dashboard/>],
-  ["/profile",<Profile/>],
-  ["/profile/edit",<EditProfile/>],
-  ["/items/create-lost",<CreateLostItem/>],
-  ["/items/create-found",<CreateFoundItem/>],
-  ["/my-items",<MyItems/>],
-  ["/items/edit/:id",<EditItem/>],
-  ["/claims",<MyClaims/>],
-  ["/leaderboard",<Leaderboard/>],
-  ["/notifications",<Notifications/>],
-
-  ["/chat/:chatRoomId",<ChatPage/>],
-  ["/owner-chats", <OwnerChats />],
-
- ].map(([path,element])=>
-
-  <Route
-   key={path as string}
-   path={path as string}
-   element={
-    <Private>
-     {element}
-    </Private>
-   }
-  />
-
- )}
-
-
-
-</Routes>
+const Private = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>{children}</ProtectedRoute>
 );
 
+const AppRouter = () => (
+  <Routes>
+    {/* Public Routes */}
+    <Route path="/" element={<Home />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/lost-items" element={<LostItems />} />
+    <Route path="/found-items" element={<FoundItems />} />
+    <Route path="/items/:id" element={<ItemDetails />} />
+
+    {/* Protected Routes */}
+    {[
+      ["/dashboard", <Dashboard />],
+      ["/profile", <Profile />],
+      ["/profile/edit", <EditProfile />],
+      ["/items/create-lost", <CreateLostItem />],
+      ["/items/create-found", <CreateFoundItem />],
+      ["/my-items", <MyItems />],
+      ["/items/edit/:id", <EditItem />],
+      ["/claims", <MyClaims />],
+      ["/leaderboard", <Leaderboard />],
+      ["/chat/:chatRoomId", <ChatPage />],
+      ["/owner-chats", <OwnerChats />],
+      ["/admin/dashboard", <AdminDashboard />],
+    ].map(([path, element]) => (
+      <Route
+        key={path as string}
+        path={path as string}
+        element={<Private>{element as React.ReactNode}</Private>}
+      />
+    ))}
+  </Routes>
+);
 
 export default AppRouter;

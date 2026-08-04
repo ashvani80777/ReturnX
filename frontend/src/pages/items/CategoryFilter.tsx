@@ -1,6 +1,11 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ITEM_CATEGORIES } from "@/types/item";
-import type { ItemCategory } from "@/types/item";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ITEM_CATEGORIES, type ItemCategory } from "@/types/item";
 
 interface CategoryFilterProps {
   value: string;

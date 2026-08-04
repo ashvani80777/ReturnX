@@ -23,19 +23,13 @@ const EditItem = () => {
       .catch(() => navigate("/my-items"));
   }, [id, navigate]);
 
-  const handleSubmit = async (
-    data: CreateItemRequest
-  ) => {
+  const handleSubmit = async (data: CreateItemRequest) => {
     if (!id) return;
 
     setLoading(true);
 
     try {
-      await updateItem(
-        Number(id),
-        data as UpdateItemRequest
-      );
-
+      await updateItem(Number(id), data as UpdateItemRequest);
       navigate("/my-items");
     } finally {
       setLoading(false);
@@ -44,15 +38,15 @@ const EditItem = () => {
 
   if (!item) {
     return (
-      <div className="p-6 text-center">
-        Loading...
+      <div className="p-6 text-center text-slate-500">
+        Loading item details...
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-3xl p-6">
-      <h1 className="mb-6 text-3xl font-bold">
+      <h1 className="mb-6 text-3xl font-bold text-slate-800">
         Edit Item
       </h1>
 

@@ -1,7 +1,4 @@
-import axios from "axios";
-
-const ADMIN_API = "http://localhost:8088/admin";
-
+import api from "./api";
 
 export interface UserResponse {
   id: number;
@@ -13,7 +10,6 @@ export interface UserResponse {
   department?: string;
   designation?: string;
 }
-
 
 export interface ItemResponse {
   id: number;
@@ -28,12 +24,10 @@ export interface ItemResponse {
   createdAt: string;
 }
 
-
 export interface LeaderboardUser {
   userEmail: string;
   totalPoints: number;
 }
-
 
 export interface AdminDashboardResponse {
   totalUsers: number;
@@ -45,70 +39,26 @@ export interface AdminDashboardResponse {
   leaderboard: LeaderboardUser[];
 }
 
-
-const adminClient = axios.create({
-  baseURL: ADMIN_API,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-
-adminClient.interceptors.request.use(config => {
-
-  const token = localStorage.getItem("token");
-
-  if(token){
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-
-});
-
-
 const adminService = {
-
   getDashboard: async (): Promise<AdminDashboardResponse> => {
-
-    const response =
-      await adminClient.get<AdminDashboardResponse>("/dashboard");
-
+    const response = await api.get<AdminDashboardResponse>("/admin/dashboard");
     return response.data;
-
   },
 
-
-  deleteUser: async (userId:number) => {
-
-    const response =
-      await adminClient.delete(`/users/${userId}`);
-
+  deleteUser: async (userId: number) => {
+    const response = await api.delete(`/admin/users/${userId}`);
     return response.data;
-
   },
 
-
-  deleteItem: async (itemId:number) => {
-
-    const response =
-      await adminClient.delete(`/items/${itemId}`);
-
+  deleteItem: async (itemId: number) => {
+    const response = await api.delete(`/items/admin/${itemId}`);
     return response.data;
-
   },
 
-
-  markItemReturned: async (itemId:number) => {
-
-    const response =
-      await adminClient.put(`/items/${itemId}/returned`);
-
+  markItemReturned: async (itemId: number) => {
+    const response = await api.put(`/items/admin/${itemId}/returned`);
     return response.data;
-
   }
-
 };
-
 
 export default adminService;

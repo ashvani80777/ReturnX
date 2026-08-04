@@ -3,13 +3,9 @@ interface Props {
   description?: string;
 }
 
-const SectionTitle = ({
-  title,
-  description,
-}: Props) => {
+const SectionTitle = ({ title, description }: Props) => {
   return (
     <div className="mb-14 text-center">
-
       <h2 className="text-4xl font-extrabold text-slate-900">
         {title}
       </h2>
@@ -19,7 +15,6 @@ const SectionTitle = ({
           {description}
         </p>
       )}
-
     </div>
   );
 };

@@ -130,6 +130,8 @@ public class RewardServiceImpl implements RewardService {
     @Override
     @Transactional
     public void deleteUserRewards(String email) {
-        rewardRepository.deleteByUserEmail(email);
+        if (email != null && !email.trim().isEmpty()) {
+            rewardRepository.deleteByUserEmail(email.trim().toLowerCase());
+        }
     }
 }

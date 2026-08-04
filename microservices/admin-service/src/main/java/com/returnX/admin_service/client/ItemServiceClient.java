@@ -32,6 +32,9 @@ public interface ItemServiceClient {
             @PathVariable Long itemId
     );
 
+    @GetMapping("/items/all")
+    List<ItemResponse> getAllItems();
+
 
 
     @PutMapping("/items/admin/{itemId}/returned")

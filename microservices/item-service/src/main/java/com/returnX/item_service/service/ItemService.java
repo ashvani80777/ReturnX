@@ -69,6 +69,7 @@ public interface ItemService {
             String ownerEmail
     );
     void adminDeleteItem(Long itemId);
+    public List<ItemResponse> getAllItems();
 
 
     void adminMarkAsReturned(Long itemId);

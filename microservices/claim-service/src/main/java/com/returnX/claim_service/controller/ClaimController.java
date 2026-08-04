@@ -70,4 +70,13 @@ public class ClaimController {
         claimService.deleteAllUserClaims(email);
         return ResponseEntity.ok("User claims deleted successfully.");
     }
+
+    @PutMapping("/item/{itemId}/status")
+    public ResponseEntity<Void> updateClaimStatusByItemId(
+            @PathVariable Long itemId,
+            @RequestParam String status
+    ) {
+        claimService.updateClaimStatusByItemId(itemId, status);
+        return ResponseEntity.ok().build();
+    }
 }

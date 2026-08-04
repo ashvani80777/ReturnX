@@ -18,4 +18,6 @@ public interface ClaimService {
     List<ClaimResponse> getOwnerClaims(String email);
 
     void deleteAllUserClaims(String email);
+
+    void updateClaimStatusByItemId(Long itemId, String status);
 }

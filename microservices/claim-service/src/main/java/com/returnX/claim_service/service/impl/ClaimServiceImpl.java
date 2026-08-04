@@ -32,33 +32,33 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public CreateClaimResponse createClaim(Long itemId,String email){
+    public CreateClaimResponse createClaim(Long itemId, String email) {
 
         ItemResponse item;
 
-        try{
-            item=itemClient.getItemById(itemId);
-        }catch(FeignException.NotFound e){
+        try {
+            item = itemClient.getItemById(itemId);
+        } catch (FeignException.NotFound e) {
             throw new ItemServiceException("Item not found");
-        }catch(FeignException e){
+        } catch (FeignException e) {
             throw new ItemServiceException("Unable to communicate with Item Service");
         }
 
-        if(item.getOwnerEmail().equalsIgnoreCase(email))
+        if (item.getOwnerEmail().equalsIgnoreCase(email))
             throw new UnauthorizedException("You cannot claim your own item");
 
-        String claimerEmail=email.toLowerCase();
+        String claimerEmail = email.toLowerCase();
 
-        if(claimRepository.existsByItemIdAndClaimerEmail(itemId,claimerEmail))
+        if (claimRepository.existsByItemIdAndClaimerEmail(itemId, claimerEmail))
             throw new ClaimAlreadyExistsException("You have already claimed this item");
 
-        Claim claim=new Claim();
+        Claim claim = new Claim();
         claim.setItemId(itemId);
         claim.setOwnerEmail(item.getOwnerEmail());
         claim.setClaimerEmail(claimerEmail);
         claim.setChatRoomId(UUID.randomUUID().toString());
 
-        claim=claimRepository.save(claim);
+        claim = claimRepository.save(claim);
 
         notificationClient.createNotification(
                 CreateNotificationRequest.builder()
@@ -79,7 +79,7 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public List<ClaimResponse> getMyClaims(String email){
+    public List<ClaimResponse> getMyClaims(String email) {
         return claimRepository
                 .findByClaimerEmailOrderByClaimedAtDesc(email.toLowerCase())
                 .stream()
@@ -88,7 +88,7 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public ClaimResponse getClaimById(Long claimId){
+    public ClaimResponse getClaimById(Long claimId) {
 
         return mapToResponse(
                 claimRepository.findById(claimId)
@@ -107,19 +107,20 @@ public class ClaimServiceImpl implements ClaimService {
 
     }
 
-    private ClaimResponse mapToResponse(Claim claim){
+    private ClaimResponse mapToResponse(Claim claim) {
         return new ClaimResponse(
                 claim.getId(),
                 claim.getItemId(),
                 claim.getOwnerEmail(),
                 claim.getClaimerEmail(),
                 claim.getChatRoomId(),
-                claim.getClaimedAt()
+                claim.getClaimedAt(),
+                claim.getStatus()
         );
     }
 
     @Override
-    public ClaimResponse getByChatRoomId(String chatRoomId){
+    public ClaimResponse getByChatRoomId(String chatRoomId) {
 
         Claim claim = claimRepository.findByChatRoomId(chatRoomId)
                 .orElseThrow(() ->
@@ -133,5 +134,11 @@ public class ClaimServiceImpl implements ClaimService {
     public void deleteAllUserClaims(String email) {
         String userEmail = email.toLowerCase();
         claimRepository.deleteByClaimerEmailIgnoreCaseOrOwnerEmailIgnoreCase(userEmail, userEmail);
+    }
+
+    @Override
+    @Transactional
+    public void updateClaimStatusByItemId(Long itemId, String status) {
+        claimRepository.updateStatusByItemId(itemId, status);
     }
 }

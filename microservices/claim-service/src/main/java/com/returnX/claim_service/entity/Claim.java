@@ -53,6 +53,13 @@ public class Claim {
     private String chatRoomId;
 
     @Column(
+            name = "status",
+            nullable = false,
+            length = 30
+    )
+    private String status = "PROCESSING";
+
+    @Column(
             name = "claimed_at",
             nullable = false,
             updatable = false
@@ -62,5 +69,8 @@ public class Claim {
     @PrePersist
     void prePersist() {
         claimedAt = LocalDateTime.now();
+        if (status == null) {
+            status = "PROCESSING";
+        }
     }
 }

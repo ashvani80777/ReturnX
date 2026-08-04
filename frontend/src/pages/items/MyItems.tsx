@@ -1,14 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import ItemCard from "./ItemCard";
-import { Button } from "@/components/ui/button";
-
-import {
-  getMyItems,
-  deleteItem,
-  markItemReturned,
-} from "@/services/itemService";
-
+import { getMyItems } from "@/services/itemService";
 import type { Item } from "@/types/item";
 
 const MyItems = () => {
@@ -31,25 +23,6 @@ const MyItems = () => {
     loadItems();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Delete this item?")) return;
-    try {
-      await deleteItem(id);
-      loadItems();
-    } catch (error) {
-      console.error("Failed to delete item:", error);
-    }
-  };
-
-  const handleReturned = async (id: number) => {
-    try {
-      await markItemReturned(id);
-      loadItems();
-    } catch (error) {
-      console.error("Failed to mark item as returned:", error);
-    }
-  };
-
   if (loading) {
     return (
       <div className="p-10 text-center text-slate-500">
@@ -69,32 +42,7 @@ const MyItems = () => {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <div key={item.id} className="space-y-3">
-              <ItemCard item={item} />
-
-              <div className="flex gap-2">
-                <Button asChild variant="outline" className="flex-1">
-                  <Link to={`/items/edit/${item.id}`}>Edit</Link>
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => handleReturned(item.id)}
-                  disabled={item.status === "RETURNED"}
-                >
-                  {item.status === "RETURNED" ? "Returned" : "Mark Returned"}
-                </Button>
-
-                <Button
-                  variant="destructive"
-                  className="flex-1"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
+            <ItemCard key={item.id} item={item} />
           ))}
         </div>
       )}

@@ -26,6 +26,7 @@ interface DataProps {
 interface StepProps {
   title: string;
   active?: boolean;
+  isReturnedStep?: boolean;
 }
 
 const MyClaims = () => {
@@ -50,7 +51,9 @@ const MyClaims = () => {
   if (loading) {
     return (
       <div className="flex h-[70vh] items-center justify-center">
-        <div className="text-lg text-slate-500">Loading your claims...</div>
+        <div className="text-lg font-medium text-slate-500">
+          Loading your claims...
+        </div>
       </div>
     );
   }
@@ -97,74 +100,95 @@ const MyClaims = () => {
         </Card>
       ) : (
         <div className="grid gap-8 lg:grid-cols-2">
-          {claims.map((claim) => (
-            <Card
-              key={claim.id}
-              className="group overflow-hidden border-none shadow-lg transition hover:shadow-2xl"
-            >
-              {/* CARD TOP */}
-              <div className="flex items-center justify-between bg-slate-900 px-6 py-4 text-white">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-orange-500 p-3">
-                    <Package size={22} />
+          {claims.map((claim) => {
+            const isReturned = claim.status === "RETURNED";
+
+            return (
+              <Card
+                key={claim.id}
+                className="group overflow-hidden border-none shadow-lg transition hover:shadow-2xl"
+              >
+                {/* CARD TOP */}
+                <div className="flex items-center justify-between bg-slate-900 px-6 py-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-orange-500 p-3">
+                      <Package size={22} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-300">
+                        Claim Reference
+                      </p>
+                      <p className="font-bold">#{claim.id}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-slate-300">Claim Reference</p>
-                    <p className="font-bold">#{claim.id}</p>
-                  </div>
-                </div>
 
-                <span className="rounded-full bg-yellow-400 px-4 py-1 text-xs font-bold text-yellow-900">
-                  PROCESSING
-                </span>
-              </div>
-
-              <CardContent className="space-y-6 p-6">
-                {/* FLOW */}
-                <div className="flex items-center gap-3">
-                  <Step title="Claimed" active />
-                  <ArrowRight className="text-slate-300" />
-                  <Step title="Chat" active />
-                  <ArrowRight className="text-slate-300" />
-                  <Step title="Return" />
-                </div>
-
-                <div className="grid gap-4">
-                  <Data
-                    icon={<User size={18} />}
-                    title="Owner"
-                    value={claim.ownerEmail}
-                  />
-                  <Data
-                    icon={<User size={18} />}
-                    title="Claimed By"
-                    value={claim.claimerEmail}
-                  />
-                  <Data
-                    icon={<Clock size={18} />}
-                    title="Created"
-                    value={new Date(claim.claimedAt).toLocaleString()}
-                  />
-                </div>
-
-                <Button
-                  asChild
-                  className="h-12 w-full bg-orange-500 text-base font-semibold hover:bg-orange-600"
-                >
-                  <Link
-                    to={`/chat/${claim.chatRoomId}`}
-                    state={{
-                      ownerEmail: claim.ownerEmail,
-                      claimerEmail: claim.claimerEmail,
-                    }}
+                  {/* DYNAMIC STATUS BADGE */}
+                  <span
+                    className={`rounded-full px-4 py-1 text-xs font-black tracking-wide uppercase ${
+                      isReturned
+                        ? "bg-emerald-500 text-white"
+                        : "bg-yellow-400 text-yellow-900"
+                    }`}
                   >
-                    <MessageCircle className="mr-2" />
-                    Continue Secure Chat
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                    {claim.status || "PROCESSING"}
+                  </span>
+                </div>
+
+                <CardContent className="space-y-6 p-6">
+                  {/* FLOW / STEPPER */}
+                  <div className="flex items-center gap-3">
+                    <Step title="Claimed" active />
+                    <ArrowRight className="text-slate-300" />
+                    <Step title="Chat" active />
+                    <ArrowRight className="text-slate-300" />
+                    <Step
+                      title="Return"
+                      active={isReturned}
+                      isReturnedStep={isReturned}
+                    />
+                  </div>
+
+                  <div className="grid gap-4">
+                    <Data
+                      icon={<User size={18} />}
+                      title="Owner"
+                      value={claim.ownerEmail}
+                    />
+                    <Data
+                      icon={<User size={18} />}
+                      title="Claimed By"
+                      value={claim.claimerEmail}
+                    />
+                    <Data
+                      icon={<Clock size={18} />}
+                      title="Created"
+                      value={
+                        claim.claimedAt
+                          ? new Date(claim.claimedAt).toLocaleString()
+                          : "N/A"
+                      }
+                    />
+                  </div>
+
+                  <Button
+                    asChild
+                    className="h-12 w-full bg-orange-500 text-base font-semibold hover:bg-orange-600"
+                  >
+                    <Link
+                      to={`/chat/${claim.chatRoomId}`}
+                      state={{
+                        ownerEmail: claim.ownerEmail,
+                        claimerEmail: claim.claimerEmail,
+                      }}
+                    >
+                      <MessageCircle className="mr-2" />
+                      Continue Secure Chat
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
@@ -181,14 +205,22 @@ const Data = ({ icon, title, value }: DataProps) => (
   </div>
 );
 
-const Step = ({ title, active }: StepProps) => (
-  <div
-    className={`rounded-full px-3 py-1 text-xs font-semibold ${
-      active ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-500"
-    }`}
-  >
-    {title}
-  </div>
-);
+const Step = ({ title, active, isReturnedStep }: StepProps) => {
+  let badgeStyle = "bg-slate-100 text-slate-500";
+
+  if (active) {
+    if (isReturnedStep) {
+      badgeStyle = "bg-emerald-500 text-white shadow-sm font-bold";
+    } else {
+      badgeStyle = "bg-orange-500 text-white shadow-sm font-semibold";
+    }
+  }
+
+  return (
+    <div className={`rounded-full px-3.5 py-1 text-xs transition-all ${badgeStyle}`}>
+      {title}
+    </div>
+  );
+};
 
 export default MyClaims;

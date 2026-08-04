@@ -130,4 +130,9 @@ public class ItemController {
         itemService.deleteAllItemsByOwnerEmail(email);
         return ResponseEntity.ok("All items for user " + email + " deleted successfully.");
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<ItemResponse>> getAllItemsForAdmin() {
+        return ResponseEntity.ok(itemService.getAllItems());
+    }
 }

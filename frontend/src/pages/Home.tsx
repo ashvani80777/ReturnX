@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Search, ShieldCheck } from "lucide-react";
 
@@ -16,10 +17,35 @@ import {
   features,
   rewards,
   stats,
-  helpers,
 } from "@/data/homeData";
 
+import {
+  getLeaderboard,
+  type LeaderboardUser,
+} from "@/services/rewardService";
+
 const Home = () => {
+  const [topHelpers, setTopHelpers] = useState<LeaderboardUser[]>([]);
+  const [loadingHelpers, setLoadingHelpers] = useState(true);
+
+  useEffect(() => {
+    const fetchTopHelpers = async () => {
+      try {
+        const data = await getLeaderboard();
+        // Take top 3 users for home preview
+        setTopHelpers((data || []).slice(0, 3));
+      } catch (error) {
+        console.error("Failed to load top helpers on home page:", error);
+      } finally {
+        setLoadingHelpers(false);
+      }
+    };
+
+    fetchTopHelpers();
+  }, []);
+
+  const medals = ["🥇", "🥈", "🥉"];
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* HERO SECTION */}
@@ -111,7 +137,7 @@ const Home = () => {
             </div>
           </div>
 
-          {/* LEADERBOARD PREVIEW */}
+          {/* DYNAMIC LEADERBOARD PREVIEW */}
           <div className="rounded-3xl bg-gradient-to-br from-orange-500 to-orange-600 p-8">
             <h3 className="text-2xl font-bold text-white">Top Helpers</h3>
             <p className="mt-2 text-orange-100">
@@ -119,17 +145,40 @@ const Home = () => {
             </p>
 
             <div className="mt-8 space-y-4">
-              {helpers.map((user) => (
-                <div
-                  key={user.name}
-                  className="flex items-center justify-between rounded-xl bg-white/20 p-4 text-white backdrop-blur"
-                >
-                  <span className="font-semibold">
-                    {user.rank} {user.name}
-                  </span>
-                  <span className="font-bold">{user.points}</span>
-                </div>
-              ))}
+              {loadingHelpers ? (
+                <p className="text-sm font-medium text-orange-100">
+                  Loading top helpers...
+                </p>
+              ) : topHelpers.length === 0 ? (
+                <p className="text-sm font-medium text-orange-100">
+                  No top helpers recorded yet.
+                </p>
+              ) : (
+                topHelpers.map((user, index) => {
+                  const displayName = user.userEmail
+                    ? user.userEmail.split("@")[0]
+                    : `User #${index + 1}`;
+
+                  return (
+                    <div
+                      key={user.userEmail || index}
+                      className="flex items-center justify-between rounded-xl bg-white/20 p-4 text-white backdrop-blur transition hover:bg-white/30"
+                    >
+                      <span className="flex items-center gap-3 font-semibold capitalize">
+                        <span className="text-lg">
+                          {medals[index] || `#${index + 1}`}
+                        </span>
+                        <span className="truncate max-w-[180px]" title={user.userEmail}>
+                          {displayName}
+                        </span>
+                      </span>
+                      <span className="font-bold">
+                        {user.totalPoints} Karma
+                      </span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

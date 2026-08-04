@@ -16,10 +16,6 @@ spring:
 
 
 
-          #removing later
-
-
-
 management:
   endpoints:
     web:

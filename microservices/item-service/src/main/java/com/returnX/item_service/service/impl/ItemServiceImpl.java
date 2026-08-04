@@ -1,6 +1,7 @@
 package com.returnX.item_service.service.impl;
 
 import com.returnX.item_service.ItemNotFoundException;
+import com.returnX.item_service.client.ClaimClient;
 import com.returnX.item_service.dto.*;
 import com.returnX.item_service.entity.Item;
 import com.returnX.item_service.enums.*;
@@ -22,32 +23,35 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ImageUploadService imageUploadService;
     private final RewardClient rewardClient;
+    private final ClaimClient claimClient;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ImageUploadService imageUploadService,
-                           RewardClient rewardClient){
-        this.itemRepository=itemRepository;
-        this.imageUploadService=imageUploadService;
-        this.rewardClient=rewardClient;
+                           RewardClient rewardClient,
+                           ClaimClient claimClient) {
+        this.itemRepository = itemRepository;
+        this.imageUploadService = imageUploadService;
+        this.rewardClient = rewardClient;
+        this.claimClient = claimClient;
     }
 
     @Override
-    public ItemResponse createLostItem(CreateItemRequest request, MultipartFile image, String ownerEmail){
-        return createItem(request,image,ownerEmail,ItemType.LOST,ItemStatus.LOST);
+    public ItemResponse createLostItem(CreateItemRequest request, MultipartFile image, String ownerEmail) {
+        return createItem(request, image, ownerEmail, ItemType.LOST, ItemStatus.LOST);
     }
 
     @Override
-    public ItemResponse createFoundItem(CreateItemRequest request, MultipartFile image, String ownerEmail){
-        return createItem(request,image,ownerEmail,ItemType.FOUND,ItemStatus.FOUND);
+    public ItemResponse createFoundItem(CreateItemRequest request, MultipartFile image, String ownerEmail) {
+        return createItem(request, image, ownerEmail, ItemType.FOUND, ItemStatus.FOUND);
     }
 
     private ItemResponse createItem(CreateItemRequest request,
                                     MultipartFile image,
                                     String ownerEmail,
                                     ItemType type,
-                                    ItemStatus status){
+                                    ItemStatus status) {
 
-        Item item=new Item();
+        Item item = new Item();
         item.setTitle(request.getTitle());
         item.setDescription(request.getDescription());
         item.setCategory(request.getCategory());
@@ -58,30 +62,32 @@ public class ItemServiceImpl implements ItemService {
         item.setOwnerEmail(ownerEmail);
         item.setEventDate(LocalDate.now());
 
-        Item savedItem=itemRepository.save(item);
+        Item savedItem = itemRepository.save(item);
 
-        if(type==ItemType.FOUND){
-            rewardClient.createReward(
-                    RewardRequest.builder()
-                            .userEmail(ownerEmail)
-                            .points(10)
-                            .actionType("FOUND_ITEM_REPORT")
-                            .reason("Report Found Item")
-                            .referenceType("ITEM")
-                            .referenceId(savedItem.getId())
-                            .build()
-            );
+        if (type == ItemType.FOUND) {
+            try {
+                rewardClient.createReward(
+                        RewardRequest.builder()
+                                .userEmail(ownerEmail)
+                                .points(10)
+                                .actionType("FOUND_ITEM_REPORT")
+                                .reason("Report Found Item")
+                                .referenceType("ITEM")
+                                .referenceId(savedItem.getId())
+                                .build()
+                );
+            } catch (Exception e) {
+                System.err.println("Failed to grant reward for found item: " + e.getMessage());
+            }
         }
 
         return mapToResponse(savedItem);
     }
 
-
     @Override
-    public ItemResponse updateItem(Long itemId,UpdateItemRequest request,String ownerEmail){
-
-        Item item=findItem(itemId);
-        checkOwnership(item,ownerEmail);
+    public ItemResponse updateItem(Long itemId, UpdateItemRequest request, String ownerEmail) {
+        Item item = findItem(itemId);
+        checkOwnership(item, ownerEmail);
 
         item.setTitle(request.getTitle());
         item.setDescription(request.getDescription());
@@ -91,131 +97,125 @@ public class ItemServiceImpl implements ItemService {
         return mapToResponse(itemRepository.save(item));
     }
 
-
     @Override
-    public ItemResponse getItemById(Long itemId){
+    public ItemResponse getItemById(Long itemId) {
         return mapToResponse(findItem(itemId));
     }
 
-
     @Override
-    public List<ItemResponse> getLostItems(){
-        return itemRepository.findByTypeAndStatus(ItemType.LOST,ItemStatus.LOST,Pageable.unpaged())
+    public List<ItemResponse> getLostItems() {
+        return itemRepository.findByTypeAndStatus(ItemType.LOST, ItemStatus.LOST, Pageable.unpaged())
                 .stream().map(this::mapToResponse).toList();
     }
 
-
     @Override
-    public List<ItemResponse> getFoundItems(){
-        return itemRepository.findByTypeAndStatus(ItemType.FOUND,ItemStatus.FOUND,Pageable.unpaged())
+    public List<ItemResponse> getFoundItems() {
+        return itemRepository.findByTypeAndStatus(ItemType.FOUND, ItemStatus.FOUND, Pageable.unpaged())
                 .stream().map(this::mapToResponse).toList();
     }
 
-
     @Override
-    public List<ItemResponse> getMyItems(String ownerEmail){
-        return itemRepository.findByOwnerEmail(ownerEmail,Pageable.unpaged())
+    public List<ItemResponse> getMyItems(String ownerEmail) {
+        return itemRepository.findByOwnerEmail(ownerEmail, Pageable.unpaged())
                 .stream().map(this::mapToResponse).toList();
     }
 
-
     @Override
-    public List<ItemResponse> searchItems(String keyword){
+    public List<ItemResponse> searchItems(String keyword) {
         return itemRepository
                 .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrLocationContainingIgnoreCase(
-                        keyword,keyword,keyword,Pageable.unpaged())
+                        keyword, keyword, keyword, Pageable.unpaged())
                 .stream().map(this::mapToResponse).toList();
     }
 
-
     @Override
-    public List<ItemResponse> getItemsByCategory(ItemCategory category){
-        return itemRepository.findByCategory(category,Pageable.unpaged())
+    public List<ItemResponse> getItemsByCategory(ItemCategory category) {
+        return itemRepository.findByCategory(category, Pageable.unpaged())
                 .stream().map(this::mapToResponse).toList();
     }
 
-
     @Override
-    public void markAsReturned(Long itemId,String ownerEmail){
+    public void markAsReturned(Long itemId, String ownerEmail) {
 
-        Item item=findItem(itemId);
-
-        checkOwnership(item,ownerEmail);
+        Item item = findItem(itemId);
+        checkOwnership(item, ownerEmail);
 
         item.setStatus(ItemStatus.RETURNED);
+        Item savedItem = itemRepository.save(item);
 
-        Item savedItem=itemRepository.save(item);
+        // 1. Claim Service mein status sync karein (Processing -> Returned)
+        try {
+            claimClient.updateClaimStatusByItemId(savedItem.getId(), "RETURNED");
+        } catch (Exception e) {
+            System.err.println("Failed to sync claim status with claim-service: " + e.getMessage());
+        }
 
+        // 2. Rewards dispatch
+        try {
+            rewardClient.createReward(
+                    RewardRequest.builder()
+                            .userEmail(ownerEmail)
+                            .points(50)
+                            .actionType("SUCCESSFUL_RETURN")
+                            .reason("Successful Return")
+                            .referenceType("ITEM")
+                            .referenceId(savedItem.getId())
+                            .build()
+            );
 
-        rewardClient.createReward(
-                RewardRequest.builder()
-                        .userEmail(ownerEmail)
-                        .points(50)
-                        .actionType("SUCCESSFUL_RETURN")
-                        .reason("Successful Return")
-                        .referenceType("ITEM")
-                        .referenceId(savedItem.getId())
-                        .build()
-        );
-
-
-        rewardClient.createReward(
-                RewardRequest.builder()
-                        .userEmail(ownerEmail)
-                        .points(100)
-                        .actionType("FIRST_RETURN")
-                        .reason("First Successful Return Bonus")
-                        .referenceType("ITEM")
-                        .referenceId(savedItem.getId())
-                        .build()
-        );
+            rewardClient.createReward(
+                    RewardRequest.builder()
+                            .userEmail(ownerEmail)
+                            .points(100)
+                            .actionType("FIRST_RETURN")
+                            .reason("First Successful Return Bonus")
+                            .referenceType("ITEM")
+                            .referenceId(savedItem.getId())
+                            .build()
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to grant return reward: " + e.getMessage());
+        }
     }
 
     @Override
-    public void deleteItem(Long itemId,String ownerEmail){
-
-        Item item=findItem(itemId);
-
-        checkOwnership(item,ownerEmail);
-
+    public void deleteItem(Long itemId, String ownerEmail) {
+        Item item = findItem(itemId);
+        checkOwnership(item, ownerEmail);
         itemRepository.delete(item);
     }
 
-
-    private Item findItem(Long id){
+    private Item findItem(Long id) {
         return itemRepository.findById(id)
-                .orElseThrow(()->new ItemNotFoundException("Item not found"));
+                .orElseThrow(() -> new ItemNotFoundException("Item not found"));
     }
 
-
-    private void checkOwnership(Item item,String email){
-        if(!item.getOwnerEmail().equals(email))
+    private void checkOwnership(Item item, String email) {
+        if (!item.getOwnerEmail().equals(email))
             throw new UnauthorizedException("You are not authorized");
     }
 
     @Override
-    public void adminDeleteItem(Long itemId){
-
+    public void adminDeleteItem(Long itemId) {
         Item item = findItem(itemId);
-
         itemRepository.delete(item);
-
     }
-
 
     @Override
-    public void adminMarkAsReturned(Long itemId){
-
+    public void adminMarkAsReturned(Long itemId) {
         Item item = findItem(itemId);
-
         item.setStatus(ItemStatus.RETURNED);
+        Item savedItem = itemRepository.save(item);
 
-        itemRepository.save(item);
-
+        // Admin action par bhi claim status sync karein
+        try {
+            claimClient.updateClaimStatusByItemId(savedItem.getId(), "RETURNED");
+        } catch (Exception e) {
+            System.err.println("Failed to sync claim status with claim-service: " + e.getMessage());
+        }
     }
 
-
-    private ItemResponse mapToResponse(Item item){
+    private ItemResponse mapToResponse(Item item) {
         return new ItemResponse(
                 item.getId(),
                 item.getTitle(),
@@ -229,9 +229,18 @@ public class ItemServiceImpl implements ItemService {
                 item.getCreatedAt()
         );
     }
+
     @Override
     @Transactional
     public void deleteAllItemsByOwnerEmail(String ownerEmail) {
         itemRepository.deleteByOwnerEmail(ownerEmail);
+    }
+
+    @Override
+    public List<ItemResponse> getAllItems() {
+        return itemRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }

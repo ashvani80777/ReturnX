@@ -88,6 +88,7 @@ const ItemDetails = () => {
   }
 
   const isOwner = currentUserEmail === item.ownerEmail;
+  const isReturned = item.status === "RETURNED";
 
   return (
     <div className="mx-auto max-w-6xl p-6">
@@ -150,7 +151,13 @@ const ItemDetails = () => {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 pt-4">
-              {!isOwner && (
+              {/* Back button is always visible */}
+              <Button variant="outline" onClick={() => navigate(-1)}>
+                Back
+              </Button>
+
+              {/* Claim button - visible only if NOT owner and NOT returned */}
+              {!isOwner && !isReturned && (
                 <Button
                   onClick={handleClaim}
                   disabled={claimLoading}
@@ -164,23 +171,26 @@ const ItemDetails = () => {
                 </Button>
               )}
 
-              <Button variant="outline" onClick={() => navigate(-1)}>
-                Back
-              </Button>
-
+              {/* Owner Actions */}
               {isOwner && (
                 <>
-                  <Button
-                    variant="secondary"
-                    onClick={() => navigate(`/items/edit/${item.id}`)} // Fixed route
-                  >
-                    Edit
-                  </Button>
+                  {/* Edit & Mark Returned - hidden if item is RETURNED */}
+                  {!isReturned && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        onClick={() => navigate(`/items/edit/${item.id}`)}
+                      >
+                        Edit
+                      </Button>
 
-                  <Button onClick={handleReturned}>
-                    Mark Returned
-                  </Button>
+                      <Button onClick={handleReturned}>
+                        Mark Returned
+                      </Button>
+                    </>
+                  )}
 
+                  {/* Delete button - always available for owner */}
                   <Button variant="destructive" onClick={handleDelete}>
                     Delete
                   </Button>

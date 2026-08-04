@@ -1,74 +1,66 @@
-import { Link } from "react-router-dom";
-import { MapPin, CalendarDays } from "lucide-react";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Item } from "@/types/item";
+import { MapPin, CalendarDays, ImageOff } from "lucide-react";
+import { Link } from "react-router-dom";
 
-interface ItemCardProps {
-  item: Item;
-  actionLabel?: string;
-  actionPath?: string;
-}
-
-const ItemCard = ({
-  item,
-  actionLabel = "View Details",
-  actionPath,
-}: ItemCardProps) => {
-  const destination = actionPath || `/items/${item.id}`;
+const ItemCard = ({ item }: any) => {
+  const isLost = item?.type === "LOST";
+  const displayDate = item?.date || (item?.createdAt ? new Date(item.createdAt).toLocaleDateString() : "N/A");
 
   return (
-    <Card className="overflow-hidden shadow-sm transition hover:shadow-lg">
-      <div className="h-48 bg-slate-100">
-        {item.imageUrl ? (
+    <Card className="group overflow-hidden border border-slate-200 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+      {/* Image Container - object-contain prevents cropping */}
+      <div className="relative flex h-52 w-full items-center justify-center overflow-hidden bg-slate-100 p-3">
+        {item?.imageUrl ? (
           <img
             src={item.imageUrl}
             alt={item.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full rounded-lg object-contain transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-slate-400">
-            No Image
+          <div className="flex flex-col items-center gap-1.5 text-slate-400">
+            <ImageOff size={32} />
+            <span className="text-xs font-medium">No Image Available</span>
           </div>
         )}
       </div>
 
       <CardContent className="space-y-3 p-5">
-        <div className="flex items-center justify-between">
-          <h2 className="line-clamp-1 text-lg font-bold text-slate-800">
-            {item.title}
+        {/* Title & Dynamic Type Badge */}
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="truncate text-lg font-bold text-slate-800" title={item?.title}>
+            {item?.title}
           </h2>
           <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              item.type === "LOST"
-                ? "bg-red-100 text-red-600"
-                : "bg-green-100 text-green-600"
+            className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
+              isLost
+                ? "bg-orange-100 text-orange-600"
+                : "bg-emerald-100 text-emerald-600"
             }`}
           >
-            {item.type}
+            {item?.type || "LOST"}
           </span>
         </div>
 
         <p className="line-clamp-2 text-sm text-slate-600">
-          {item.description}
+          {item?.description || "No description provided."}
         </p>
 
-        <div className="space-y-2 text-sm text-slate-500">
+        {/* Location & Date */}
+        <div className="space-y-1.5 text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            <MapPin size={16} />
-            <span className="line-clamp-1">{item.location}</span>
+            <MapPin size={15} className="shrink-0 text-orange-500" />
+            <span className="truncate">{item?.location || "Location not specified"}</span>
           </div>
           <div className="flex items-center gap-2">
-            <CalendarDays size={16} />
-            {item.createdAt
-              ? new Date(item.createdAt).toLocaleDateString()
-              : "N/A"}
+            <CalendarDays size={15} className="shrink-0 text-orange-500" />
+            <span>{displayDate}</span>
           </div>
         </div>
 
-        <Button asChild className="mt-3 w-full bg-orange-500 hover:bg-orange-600">
-          <Link to={destination}>{actionLabel}</Link>
+        {/* Action Button */}
+        <Button asChild className="mt-3 w-full bg-orange-500 font-semibold hover:bg-orange-600">
+          <Link to={`/items/${item?.id}`}>View Details</Link>
         </Button>
       </CardContent>
     </Card>

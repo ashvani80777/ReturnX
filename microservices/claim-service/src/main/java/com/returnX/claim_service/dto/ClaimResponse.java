@@ -24,4 +24,5 @@ public class ClaimResponse {
     private String chatRoomId;
 
     private LocalDateTime claimedAt;
+    private String status;
 }

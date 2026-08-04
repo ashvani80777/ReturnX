@@ -1,19 +1,30 @@
-import { Trophy, Medal, Star, PackageCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Trophy, Medal, Star, ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface LeaderboardUser {
-  rank: number;
-  name: string;
-  karma: number;
-  returned: number;
-}
+import {
+  getLeaderboard,
+  type LeaderboardUser,
+} from "@/services/rewardService";
 
 const Leaderboard = () => {
-  const users: LeaderboardUser[] = [
-    { rank: 1, name: "Top Contributor", karma: 950, returned: 24 },
-    { rank: 2, name: "Helpful Member", karma: 820, returned: 19 },
-    { rank: 3, name: "Active Finder", karma: 700, returned: 15 },
-  ];
+  const [leaderboardUsers, setLeaderboardUsers] = useState<LeaderboardUser[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
+
+  const fetchLeaderboard = async () => {
+    try {
+      setLoading(true);
+      const data = await getLeaderboard();
+      setLeaderboardUsers(data || []);
+    } catch (error) {
+      console.error("Failed to fetch leaderboard:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const info = [
     {
@@ -29,6 +40,14 @@ const Leaderboard = () => {
       text: "Build reputation inside ReturnX.",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center text-lg font-medium text-slate-500">
+        Loading Leaderboard...
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
@@ -47,45 +66,79 @@ const Leaderboard = () => {
         </div>
       </div>
 
-      {/* Leaderboard Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {users.map((user) => (
-          <Card
-            key={user.rank}
-            className={`border-none shadow-lg ${
-              user.rank === 1 ? "ring-2 ring-orange-400" : ""
-            }`}
-          >
-            <CardContent className="p-6 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                {user.rank === 1 ? <Trophy /> : <Medal />}
-              </div>
+      {/* Dynamic Leaderboard Cards */}
+      {leaderboardUsers.length === 0 ? (
+        <Card className="border-none py-12 text-center shadow-md">
+          <CardContent>
+            <p className="text-lg font-semibold text-slate-600">
+              No leaderboard activity yet.
+            </p>
+            <p className="mt-1 text-sm text-slate-400">
+              Be the first to report and return items to earn karma points!
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-3">
+          {leaderboardUsers.map((user, index) => {
+            const rank = index + 1;
+            const displayName = user.userEmail
+              ? user.userEmail.split("@")[0]
+              : `User #${rank}`;
 
-              <h2 className="text-xl font-bold text-slate-800">
-                #{user.rank} {user.name}
-              </h2>
+            return (
+              <Card
+                key={user.userEmail || index}
+                className={`border-none shadow-lg transition hover:shadow-xl ${
+                  rank === 1 ? "ring-2 ring-orange-400" : ""
+                }`}
+              >
+                <CardContent className="p-6 text-center">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                    {rank === 1 ? <Trophy /> : <Medal />}
+                  </div>
 
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
-                  <span className="flex items-center gap-2 text-slate-600">
-                    <Star size={16} className="text-orange-500" />
-                    Karma
-                  </span>
-                  <span className="font-bold text-slate-800">{user.karma}</span>
-                </div>
+                  <h2
+                    className="truncate text-xl font-bold text-slate-800 capitalize"
+                    title={user.userEmail}
+                  >
+                    #{rank} {displayName}
+                  </h2>
+                  <p className="mb-3 truncate text-xs text-slate-400">
+                    {user.userEmail}
+                  </p>
 
-                <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
-                  <span className="flex items-center gap-2 text-slate-600">
-                    <PackageCheck size={16} className="text-green-500" />
-                    Returned
-                  </span>
-                  <span className="font-bold text-slate-800">{user.returned}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
+                      <span className="flex items-center gap-2 font-medium text-slate-600">
+                        <Star size={16} className="fill-orange-500 text-orange-500" />
+                        Karma Points
+                      </span>
+                      <span className="font-extrabold text-orange-600">
+                        {user.totalPoints}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm">
+                      <span className="flex items-center gap-2 font-medium text-slate-600">
+                        <ShieldCheck size={16} className="text-emerald-500" />
+                        Badge
+                      </span>
+                      <span className="font-bold text-slate-700">
+                        {rank === 1
+                          ? "Top Contributor"
+                          : rank === 2
+                          ? "Helpful Member"
+                          : "Active Finder"}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {/* How Karma Works Section */}
       <Card className="mt-10 border-none shadow-md">

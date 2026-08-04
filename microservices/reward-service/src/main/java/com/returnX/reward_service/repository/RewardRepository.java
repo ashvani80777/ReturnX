@@ -4,7 +4,9 @@ import com.returnX.reward_service.entity.Reward;
 import com.returnX.reward_service.enums.RewardAction;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +53,9 @@ public interface RewardRepository extends JpaRepository<Reward,Long> {
             String actionType
     );
 
+    @Modifying
     @Transactional
-    void deleteByUserEmail(String userEmail);
+    @Query("DELETE FROM Reward r WHERE LOWER(r.userEmail) = LOWER(:userEmail)")
+    void deleteByUserEmail(@Param("userEmail") String userEmail);
 
 }

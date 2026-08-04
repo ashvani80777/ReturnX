@@ -33,3 +33,8 @@ export const getClaimById = async (
   const { data } = await api.get(`/claims/${claimId}`);
   return data;
 };
+
+export const getOwnerClaims = async (): Promise<ClaimResponse[]> => {
+  const { data } = await api.get("/claims/owner");
+  return data;
+};

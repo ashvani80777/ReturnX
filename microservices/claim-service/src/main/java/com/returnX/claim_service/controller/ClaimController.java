@@ -38,6 +38,15 @@ public class ClaimController {
         );
     }
 
+    @GetMapping("/owner")
+    public ResponseEntity<List<ClaimResponse>> getOwnerClaims(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                claimService.getOwnerClaims(authentication.getName())
+        );
+    }
+
     @GetMapping("/{claimId}")
     public ResponseEntity<ClaimResponse> getClaimById(
             @PathVariable Long claimId) {

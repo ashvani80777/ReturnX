@@ -14,4 +14,6 @@ public interface ClaimService {
     ClaimResponse getClaimById(Long claimId);
 
     ClaimResponse getByChatRoomId(String chatRoomId);
+
+    List<ClaimResponse> getOwnerClaims(String email);
 }

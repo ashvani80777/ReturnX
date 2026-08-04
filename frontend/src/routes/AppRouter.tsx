@@ -25,6 +25,7 @@ import Leaderboard from "@/pages/Leaderboard";
 import Notifications from "@/pages/Notification";
 
 import ProtectedRoute from "./ProtectedRoute";
+import OwnerChats from "@/pages/chat/OwnerChat";
 
 
 const Private=({children}:{children:React.ReactNode})=>
@@ -63,7 +64,8 @@ const AppRouter=()=>(
   ["/leaderboard",<Leaderboard/>],
   ["/notifications",<Notifications/>],
 
-  ["/chat/:chatRoomId",<ChatPage/>]
+  ["/chat/:chatRoomId",<ChatPage/>],
+  ["/owner-chats", <OwnerChats />],
 
  ].map(([path,element])=>
 

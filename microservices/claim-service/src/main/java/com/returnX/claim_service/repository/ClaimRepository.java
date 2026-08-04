@@ -13,4 +13,7 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
     List<Claim> findByClaimerEmailOrderByClaimedAtDesc(String claimerEmail);
 
     Optional<Claim> findByChatRoomId(String chatRoomId);
+
+    List<Claim> findByOwnerEmailOrderByClaimedAtDesc(String ownerEmail);
+
 }

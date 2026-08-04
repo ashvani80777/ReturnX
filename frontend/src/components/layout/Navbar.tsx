@@ -66,7 +66,7 @@ const Navbar = () => {
             <Drop title="My Activity" items={[
               ["/my-items", "My Items"],
               ["/claims", "My Claims"],
-              ["/chat/demo", "Chat"]
+              ["/owner-chats", "Incoming Claims"],
             ]} />
 
 

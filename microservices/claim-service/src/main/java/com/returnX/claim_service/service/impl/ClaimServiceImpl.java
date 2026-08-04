@@ -95,6 +95,17 @@ public class ClaimServiceImpl implements ClaimService {
         );
     }
 
+    @Override
+    public List<ClaimResponse> getOwnerClaims(String email) {
+
+        return claimRepository
+                .findByOwnerEmailOrderByClaimedAtDesc(email.toLowerCase())
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+
+    }
+
     private ClaimResponse mapToResponse(Claim claim){
         return new ClaimResponse(
                 claim.getId(),
